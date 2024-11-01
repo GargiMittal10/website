@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calendar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.orange-coral.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: linear-gradient(
+            rgba(255, 255, 255, 0.365),  /* Light white */
+            rgba(255, 255, 255, 0.281),  /* Light white */
+            rgba(255, 255, 255, 0.128)
+            ), url('/images/background-image.jpeg');
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .hero {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            padding: 20px;
+        }
+        #calendar {
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .event-form {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .event-form h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .event-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .event-form input, .event-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .event-form button {
+            background-color: #ff7f5c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .event-form button:hover {
+            background-color: #ff6b43;
+        }
+        .event-container {
+            position: relative;
+            margin-top: 20px;
+        }
+        .event-list {
+            margin-top: 20px;
+        }
+        .event-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .delete-btn:hover {
+            background-color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div id="calendar"></div>
+        <div class="event-form">
+            <h3>Add New Event</h3>
+            <div class="form-group">
+                <label for="eventName">Event Name</label>
+                <input type="text" id="eventName" placeholder="Enter event name">
+            </div>
+            <div class="form-group">
+                <label for="eventDate">Date</label>
+                <input type="date" id="eventDate">
+            </div>
+            <div class="form-group">
+                <label for="eventType">Event Type</label>
+                <select id="eventType">
+                    <option value="event">Event</option>
+                    <option value="holiday">Holiday</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="eventDescription">Description (optional)</label>
+                <input type="text" id="eventDescription" placeholder="Enter event description">
+            </div>
+            <button onclick="addEvent()">Add Event</button>
+        </div>
+        <div class="event-container">
+            <h3>Added Events:</h3>
+            <div id="eventList" class="event-list"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/js/evo-calendar.min.js"></script>
+    <script>
+        let selectedEventId = null;
+
+        $(document).ready(function() {
+            // Initialize the calendar
+            $('#calendar').evoCalendar({
+                theme: 'Orange Coral',
+                calendarEvents: [],
+                eventDisplayDefault: false,
+                eventListNoEventsText: 'No events to display'
+            });
+
+            // Handle selecting an event
+            $('#calendar').on('selectEvent', function(event, activeEvent) {
+                selectedEventId = activeEvent.id;
+            });
+        });
+
+        // Function to add a new event to the calendar and database
+        async function addEvent() {
+            const name = document.getElementById('eventName').value;
+            const date = document.getElementById('eventDate').value;
+            const type = document.getElementById('eventType').value;
+            const description = document.getElementById('eventDescription').value;
+
+            if (!name || !date) {
+                alert('Please fill in at least the event name and date.');
+                return;
+            }
+
+            const newEvent = {
+                name: name,
+                date: date,
+                type: type,
+                description: description
+            };
+
+            try {
+                // Send a POST request to save the event to the server
+                const response = await fetch('/calendar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newEvent)
+                });
+
+                if (response.ok) {
+                    const eventData = await response.json();
+                    // Add the event to the calendar
+                    newEvent.id = eventData.id; // Get the event ID from the response
+                    $('#calendar').evoCalendar('addCalendarEvent', newEvent);
+                    displayEvent(newEvent); // Display the event below the form
+
+                    // Clear the form
+                    document.getElementById('eventName').value = '';
+                    document.getElementById('eventDate').value = '';
+                    document.getElementById('eventType').value = 'event';
+                    document.getElementById('eventDescription').value = '';
+
+                    alert('Event added successfully!');
+                } else {
+                    alert('Error adding event. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error adding event. Please try again.');
+            }
+        }
+
+        // Function to display the event in the event list
+        function displayEvent(event) {
+            const eventList = document.getElementById('eventList');
+            const eventItem = document.createElement('div');
+            eventItem.className = 'event-item';
+            eventItem.innerHTML = `
+                <strong>${event.name}</strong><br>
+                Date: ${event.date}<br>
+                Type: ${event.type}<br>
+                Description: ${event.description}
+                <button class="delete-btn" onclick="deleteEvent('${event.id}')">Delete</button>
+            `;
+            eventList.appendChild(eventItem);
+        }
+
+        // Function to delete an event by its ID
+        async function deleteEvent(eventId) {
+            // Remove the event from the calendar
+            $('#calendar').evoCalendar('removeCalendarEvent', eventId);
+            // Remove the event from the event list
+            document.querySelectorAll('.event-item').forEach(item => {
+                if (item.querySelector('.delete-btn').onclick.toString().includes(eventId)) {
+                    item.remove();
+                }
+            });
+            alert('Event deleted successfully!');
+        }
+    </script>
+
+</body>
+</html>

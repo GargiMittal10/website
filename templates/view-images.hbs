@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Images</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+      }
+      .image-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: 600px; /* Limit height */
+        overflow-y: scroll; /* Add scroll bar */
+      }
+      .image {
+        margin-bottom: 20px;
+      }
+      .image img {
+        max-width: 100%; /* Responsive image */
+        border-radius: 8px;
+      }
+      .description {
+        font-size: 0.9em; /* Adjust font size for description */
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Uploaded Images</h1>
+    <div class="image-container">
+      {{!-- <% images.forEach(function(image) { %>
+      <div class="image">
+        <img
+          src="/uploads/<%= image.filename %>"
+          alt="<%= image.description %>"
+        />
+
+        <p class="description"><%= image.description %></p>
+      </div>
+      <% }); %> --}}
+
+      <% images.forEach(image => { %>
+        <div class="image">
+            <img src="/uploads/<%= image.filename %>" alt="<%= image.description %>" />
+            <p class="description"><%= image.description %></p>
+        </div>
+    <% }) %>
+
+    </div>
+  </body>
+</html>

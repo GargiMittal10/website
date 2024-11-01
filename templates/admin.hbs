@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .accept-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .decline-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+
+    {{#if applications.length}}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each applications}}
+        <tr>
+          <td>{{this.name}}</td>
+          <td>{{this.email}}</td>
+          <td>{{this.role}}</td>
+          <td>{{this.status}}</td>
+          <td>
+            <form action="/admin/accept/{{this._id}}" method="POST" style="display: inline;" 
+                  onsubmit="return confirm('Are you sure you want to accept this application?');">
+              <button type="submit" class="accept-btn">Accept</button>
+            </form>
+            <form action="/admin/decline/{{this._id}}" method="POST" style="display: inline;" 
+                  onsubmit="return confirm('Are you sure you want to decline this application?');">
+              <button type="submit" class="decline-btn">Decline</button>
+            </form>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}}
+      <p>No applications to review at the moment.</p>
+    {{/if}}
+</body>
+</html>

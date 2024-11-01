@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Registration Form</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-image: linear-gradient(
+            rgba(255, 255, 255, 0.7),  /* Light white */
+            rgba(255, 255, 255, 0.372),  /* Light white */
+            rgba(255, 255, 255, 0.187)
+            ),
+            url('/images/staffDash.jpeg');  /* Replace with your image URL */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Keeps the image fixed when scrolling */
+        }
+
+        .logo {
+          max-width: 100px;
+          height: auto;
+          margin: 0 auto 15px auto; /* Removes top margin and centers the logo */
+          display: block;
+        }
+
+        .formbold-form-wrapper {
+          margin: 0 auto;
+          max-width: 900px;
+          width: 100%;
+          background: #ffffff;
+          padding: 20px 30px;
+          box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .formbold-form-title h2 {
+          font-weight: 600;
+          font-size: 26px;
+          line-height: 34px;
+          color: #004d80;
+          text-align: center;
+          text-decoration: underline;
+          margin-bottom: 10px;
+        }
+
+        .formbold-input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .formbold-input-group label {
+            width: 200px;
+            text-align: left;
+            margin-right: 10px;
+        }
+
+        .formbold-input-group input, .formbold-input-group textarea, .formbold-input-group select {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #cccccc;
+            background: #ffffff;
+            font-size: 14px;
+            color: #333333;
+            outline: none;
+        }
+
+        .formbold-btn {
+          font-size: 16px;
+          border-radius: 4px;
+          padding: 12px 25px;
+          border: none;
+          font-weight: 600;
+          background-color: #004d80;
+          color: white;
+          cursor: pointer;
+          margin-top: 25px;
+        }
+
+        .formbold-btn:hover {
+          background-color: #006699;
+        }
+
+        table {
+          width: 100%;
+          margin-bottom: 20px;
+          border-collapse: collapse;
+        }
+
+        table th, table td {
+          border: 1px solid #cccccc;
+          padding: 8px;
+          text-align: center;
+        }
+
+        table th {
+          background-color: #f4f4f4;
+        }
+
+        .photo-upload {
+          margin-bottom: 20px;
+        }
+
+        .flex-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-row input {
+            width: 45%;
+        }
+
+        h2 {
+          text-align: center;
+          margin-bottom: 25px;
+          color: #004d80;
+        }
+
+        .gender-options {
+          display: flex;
+          justify-content: flex-start;
+          gap: 60px;
+          padding-left: 5px;
+        }
+
+        .gender-options input[type="radio"] {
+            margin-right: 0%; /* Reduce the space between radio button and label */
+        }
+
+        .gender-options label {
+            margin-right: 10px; /* Space between Male and Female */
+        }
+
+        .marital-status-options input[type="radio"] {
+            margin-right: 0%; /* Reduce the space between radio button and label */
+        }
+
+        .marital-status-options label {
+            margin-right: 10px; /* Space between Unmarried and Married */
+        }
+
+        .marital-status-options {
+          display: flex;
+          justify-content: flex-start;
+          gap: 60px;
+          padding-left: 5px;
+        }
+
+    .formbold-input-wrapper {
+          margin-bottom: 15px;
+        }
+
+        .formbold-input-label {
+          font-weight: 600;
+          font-size: 16px;
+          color: #333;
+          display: block;
+          margin-bottom: 5px;
+        }
+
+        .formbold-input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 14px;
+        }
+
+        .formbold-file-input {
+          width: 100%;
+          padding: 5px;
+          font-size: 14px;
+        }
+
+        .formbold-button {
+          width: 100%;
+          padding: 10px;
+          background-color: #004d;
+          color: white;
+          font-size: 16px;
+          font-weight: 600;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+
+        .formbold-button:hover {
+          background-color: #003d;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="formbold-form-wrapper">
+        <img src="/images/navkshitijLogo.png" alt="Logo" class="logo">
+        <h2>Volunteer Registration Form</h2>
+        <form action="/submit-form" method="POST" enctype="multipart/form-data">
+            <!-- Photo Upload -->
+            <div class="formbold-input-group photo-upload">
+                <label for="photo">Upload Photo:</label>
+                <input type="file" id="photo" name="photo" required>
+            </div>
+
+            <div class="formbold-input-group photo-upload">
+                <label for="aadhar">Upload Aadhar Card Photo:</label>
+                <input type="file" id="aadhar" name="aadhar" required>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="formbold-input-group">
+                <label for="role">Choose your role:</label>
+                <select id="role" name="role" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="intern">Intern</option>
+                </select>
+            </div>
+
+            <!-- Name Field -->
+            <div class="formbold-input-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <!-- Gender Field -->
+            <div class="formbold-input-group">
+              <label>Gender:</label>
+              <div class="gender-options">
+                  <input type="radio" id="male" name="gender" value="male" required>
+                  <label for="male">Male</label>
+                  <input type="radio" id="female" name="gender" value="female" required>
+                  <label for="female">Female</label>
+              </div>
+          </div>
+
+            <!-- Date of Birth and Age -->
+            <div class="formbold-input-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" id="dob" name="dob" required>
+                <label for="age" style="margin-left: 30px;">Age:</label>
+                <input type="number" id="age" name="age" style="width: 50px;" required>
+            </div>
+
+
+            <!-- Marital Status -->
+            <div class="formbold-input-group">
+              <label>Marital Status:</label>
+              <div class="marital-status-options">
+                  <input type="radio" id="unmarried" name="marital_status" value="unmarried">
+                  <label for="unmarried">Unmarried</label>
+                  <input type="radio" id="married" name="marital_status" value="married">
+                  <label for="married">Married</label>
+              </div>
+          </div>
+
+            <!-- Occupation and Designation -->
+            <div class="formbold-input-group">
+                <label for="occupation">Occupation:</label>
+                <input type="text" id="occupation" name="occupation">
+                <label for="designation" style="margin-left: 30px;">Designation:</label>
+                <input type="text" id="designation" name="designation">
+            </div>
+
+            <!-- Address -->
+            <div class="formbold-input-group">
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" rows="2"></textarea>
+            </div>
+
+            <!-- Passport and Arrival Date -->
+            <div class="formbold-input-group">
+                <label for="passport">Passport No.:</label>
+                <input type="text" id="passport" name="passport">
+                <label for="arrival" style="margin-left: 30px;">Date of Arrival:</label>
+                <input type="date" id="arrival" name="arrival">
+            </div>
+
+            <!-- Contact Information -->
+            <div class="formbold-input-group">
+                <label for="contact_residence">Contact No. (Residence):</label>
+                <input type="text" id="contact_residence" name="contact_residence">
+                <label for="contact_office" style="margin-left: 30px;">Office:</label>
+                <input type="text" id="contact_office" name="contact_office">
+            </div>
+
+            <div class="formbold-input-group">
+                <label for="mobile">Mobile:</label>
+                <input type="text" id="mobile" name="mobile">
+                <label for="email" style="margin-left: 30px;">Email:</label>
+                <input type="email" id="email" name="email">
+            </div>
+
+            <!-- Educational Qualification and Mother Tongue -->
+            <div class="formbold-input-group">
+                <label for="education">Educational Qualification:</label>
+                <input type="text" id="education" name="education" required>
+                <label for="mother_tongue" style="margin-left: 30px;">Mother Tongue:</label>
+                <input type="text" id="mother_tongue" name="mother_tongue" required>
+            </div>
+
+            <!-- Languages Known Table -->
+            <table>
+                <tr>
+                    <th>Language</th>
+                    <th>Speak</th>
+                    <th>Write</th>
+                    <th>Understand</th>
+                </tr>
+                <tr>
+                    <td>English</td>
+                    <td><input type="checkbox" name="english_speak"></td>
+                    <td><input type="checkbox" name="english_write"></td>
+                    <td><input type="checkbox" name="english_understand"></td>
+                </tr>
+                <tr>
+                    <td>Hindi</td>
+                    <td><input type="checkbox" name="hindi_speak"></td>
+                    <td><input type="checkbox" name="hindi_write"></td>
+                    <td><input type="checkbox" name="hindi_understand"></td>
+                </tr>
+                <tr>
+                    <td>Marathi</td>
+                    <td><input type="checkbox" name="marathi_speak"></td>
+                    <td><input type="checkbox" name="marathi_write"></td>
+                    <td><input type="checkbox" name="marathi_understand"></td>
+                </tr>
+                <tr>
+                    <td>Any other</td>
+                    <td><input type="checkbox" name="other_speak"></td>
+                    <td><input type="checkbox" name="other_write"></td>
+                    <td><input type="checkbox" name="other_understand"></td>
+                </tr>
+            </table>
+
+            <!-- Hobbies -->
+            <div class="formbold-input-group">
+                <label for="hobbies">Hobbies:</label>
+                <textarea id="hobbies" name="hobbies" rows="4"></textarea>
+            </div>
+
+            <!-- Experience in Social Work -->
+            <div class="formbold-input-group">
+                <label for="experience">Experience in Social Work/Service:</label>
+                <textarea id="experience" name="experience" rows="4"></textarea>
+            </div>
+
+            <!-- Area of Interest in Social Work -->
+            <div class="formbold-input-group">
+                <label for="interest">Area of Interest in Social Work:</label>
+                <textarea id="interest" name="interest" rows="4"></textarea>
+            </div>
+
+            <!-- How you came to know about Navkshitij -->
+            <div class="formbold-input-group">
+                <label for="know_navkshitij">How you came to know about Navkshitij:</label>
+                <textarea id="know_navkshitij" name="know_navkshitij" rows="4"></textarea>
+            </div>
+
+            <!-- Motivation Behind Working at Navkshitij -->
+            <div class="formbold-input-group">
+                <label for="motivation">Motivation behind working at Navkshitij:</label>
+                <textarea id="motivation" name="motivation" rows="4"></textarea>
+            </div>
+
+            <!-- Duration & Preferred Time -->
+            <div class="formbold-input-group">
+                <label for="duration">Duration & preferred time you would work at Navkshitij:</label>
+                <textarea id="duration" name="duration" rows="2"></textarea>
+            </div>
+
+            <!-- Signature, Date and Place -->
+            <div class="formbold-input-group">
+                <label for="date_place" >Date and Place:</label>
+                <input type="text" id="date_place" name="date_place">
+            </div>
+            
+            <div class="formbold-input-group photo-upload">
+                <label for="signature">Upload Signature:</label>
+                <input type="file" id="signature" name="signature" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="formbold-btn">Register Now</button>
+        </form>
+    </div>
+</body>
+</html>

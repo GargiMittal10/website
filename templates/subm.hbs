@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Submitted</title>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-image: /*linear-gradient(
+            rgba(255, 255, 255, 0.7),  
+            rgba(255, 255, 255, 0.372),  
+            rgba(255, 255, 255, 0.187)
+            ), */
+            url('/images/004d80.png');  
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .confirmation-wrapper {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .logo {
+            max-width: 100px;
+            margin: 0 auto 20px;
+        }
+
+        h1 {
+            color: #004d80;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .thank-you-note {
+            color: #006699;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .btn-home {
+            font-size: 16px;
+            border-radius: 4px;
+            padding: 12px 25px;
+            border: none;
+            font-weight: 600;
+            background-color: #004d80;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-home:hover {
+            background-color: #006699;
+        }
+    </style>
+</head>
+<body>
+  <div class="confirmation-wrapper">
+        <img src="/images/navkshitijLogo.png" alt="Logo" class="logo">
+        <h1>Registration Submitted!</h1>
+        <p>Thank you for registering.</p>
+        <p>We have received your details and our team will review your application.</p>
+        <p class="thank-you-note">Please wait a few days for the response.</p>
+        <button class="btn-home" onclick="goHome()">Back to Home</button>
+    </div>
+
+    <script>
+        function goHome() {
+            window.location.href = "login"; // Replace with the actual URL of the home page
+        }
+    </script>
+</body>
+</html>
