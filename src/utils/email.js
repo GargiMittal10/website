@@ -49,6 +49,43 @@ function setupEmailRoutes(app) {
             res.status(500).send("Error processing application acceptance.");
         }
     });
+
+    app.post("/admin/decline/:id", async (req, res) => {
+        try {
+            const applicationId = req.params.id;
+
+            // Update the application with the declined status
+            await Application.findByIdAndUpdate(applicationId, { status: "Declined" });
+
+            // Fetch updated application to get email and other details
+            const application = await Application.findById(applicationId);
+
+            // Nodemailer transporter setup
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            // Send rejection email
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: application.email,
+                subject: "Application Declined",
+                text: `Dear ${application.name},\n\nWe regret to inform you that your application as ${application.role} has been declined. We appreciate your interest and effort and encourage you to apply again in the future.\n\nBest regards,\nNavkshitij Team`,
+            });
+
+            res.redirect("/admin");
+        } catch (err) {
+            console.error("Error declining application and sending email:", err.message);
+            res.status(500).send("Error processing application declination.");
+        }
+    });
+
 }
 
 module.exports = setupEmailRoutes;
