@@ -3290,7 +3290,7 @@
   }
   
   .hero-section {
-    background-image: linear-gradient(360deg, #222, #2220), url("./images/guardian-dashboard-bg.jpeg");
+    background-image: linear-gradient(360deg, #222, #2220), url("./images/staffDash-bg.jpg");
     background-position: 0 0, 50%;
     background-size: auto, cover;
     min-height: 550px;
@@ -3319,7 +3319,15 @@
     background-color: white;
     height: 80px; 
     
-  }
+  } 
+  #logo {
+    width: 80px !important;       /* Set width and force it with !important */
+    height: auto !important;      /* Maintain aspect ratio */
+    margin-left: auto;            /* Shift to the right */
+    max-width: 90px;              /* Ensure it doesn’t expand beyond this size */
+}
+
+
   
   .nav-link {
     color: #ef5835;
@@ -4725,7 +4733,7 @@
     <div class="hero-section">
         <div class="container">
             <div class="hero-wrapper">
-                <h1 class="hero-heading">Welcome to <br />Guardian Dashboard</h1>
+                <h1 class="hero-heading">Welcome to <br />Staff Dashboard</h1>
                 <div class="hero-button-wrapper">
                     <a href="/shop" class="btn light outline w-button" id="view-profilebtn">View profile</a>
                 </div>
