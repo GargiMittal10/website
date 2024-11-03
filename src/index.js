@@ -88,6 +88,28 @@ app.post("/login", async (req, res) => {
     }
 });
 
+app.post("/signup", async (req, res) => {
+    const { name, email, password, role, uniqueCode } = req.body;
+
+    try {
+        // Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.send("User already exists with this email.");
+        }
+
+        // Create new user
+        const newUser = new User({ name, email, password, role, uniqueCode });
+        await newUser.save();
+
+        req.session.user = { name: newUser.name, email: newUser.email, role: newUser.role };
+        res.redirect("/login"); // Redirect after sign-up
+    } catch (error) {
+        console.error("Error during sign-up:", error);
+        res.status(500).send("Error during sign-up.");
+    }
+});
+
 // Admin Dashboard Route
 app.get('/admin', isAuthenticated, async (req, res) => {
     if (req.session.user && req.session.user.email === "gargimittal.10102003@gmail.com") {
