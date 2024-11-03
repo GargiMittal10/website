@@ -3289,12 +3289,14 @@
     font-size: 16px;
   }
   
-  .hero-section {
-    background-image: linear-gradient(360deg, #222, #2220), url("./images/guardian-dashboard-bg.jpeg");
+ 
+    .hero-section {
+    background-image: linear-gradient(360deg, #222, #2220), url("./images/guardianDash-bg.png");
     background-position: 0 0, 50%;
     background-size: auto, cover;
     min-height: 550px;
   }
+  
   
   .hero-section.about-hero {
     background-image: linear-gradient(360deg, #222, #2220), url("https://cdn.prod.website-files.com/66d87265f869f99a5b9f6b91/66d87265f869f99a5b9f6c2d_felix-rostig-UmV2wr-Vbq8-unsplash.jpg");
@@ -3314,6 +3316,7 @@
     position: sticky;
     top: 0;
   }
+  
   
   .navbar {
     background-color: white;
@@ -4681,15 +4684,12 @@
   }
 
 
-  #logo{
-    
-    width: 185px;
-    height: auto;
-    margin-right: auto; 
-   
-
-
- }
+  #logo {
+    width: 80px !important;       /* Set width and force it with !important */
+    height: auto !important;      /* Maintain aspect ratio */
+    margin-left: auto;            /* Shift to the right */
+    max-width: 90px;              /* Ensure it doesn’t expand beyond this size */
+}
     </style>
 </head>
 <body>
@@ -4713,7 +4713,7 @@
                     <a href="/" aria-current="page" class="brand w-nav-brand w--current"><img id="logo" src="images/navkshitijLogo.png" alt="Navkshitij Logo" /></a>
                     <nav role="navigation" class="nav-menu w-nav-menu">
                         <a href="/" aria-current="page" class="nav-link w-nav-link w--current">Profile</a>
-                        <a href="/about" class="nav-link w-nav-link">Calander</a>
+                        <a href="/view-calendar" class="nav-link w-nav-link">Calander</a>
                         <a href="/view-notice" class="nav-link w-nav-link">Notices</a>
                         <a href="/view-images" class="nav-link w-nav-link">Photos</a>
                         <a href="/login" class="nav-link w-nav-link">Log Out</a>

@@ -10,7 +10,11 @@ const mongoose = require('mongoose');
 const { sendApplicationEmail, sendCredentialEmail } = require('./utils/email');
 const crypto = require('crypto');
 
+
+
 const app = express();
+
+
 
 hbs.registerHelper('json', function(context) {
     return JSON.stringify(context);
@@ -27,9 +31,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Set up template engine and static files
-app.set("view engine", "hbs");
+app.set('view engine', 'hbs');
 app.set("views", path.join(__dirname, '../templates'));
 app.use(express.static('public'));
+
 
 const fs = require('fs');
 const uploadDir = path.join(__dirname, '../uploads');
@@ -209,19 +214,15 @@ app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, r
     }
 });
 
+<<<<<<< HEAD
 app.delete("/delete-activity/:id", isAuthenticated, async (req, res) => {
     try {
         const deletedActivity = await Activity.findByIdAndDelete(req.params.id);
+=======
+>>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
 
-        if (!deletedActivity) {
-            return res.status(404).json({ message: "Activity not found" });
-        }
 
-        res.json({ message: "Activity deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ message: "Error deleting activity: " + err.message });
-    }
-});
+
 
 app.get("/logout", (req, res) => {
     req.session.destroy();
@@ -231,6 +232,34 @@ app.get("/logout", (req, res) => {
 app.get("/add-notice", (req, res) => {
     res.render('add-notice');
 });
+<<<<<<< HEAD
+=======
+app.get("/view-calendar", isAuthenticated, (req, res) => {
+    res.render("view-calendar"); // Ensure you have a view-calendar.hbs template
+});
+
+
+  
+  // Handle image upload (POST request)
+  app.post('/add-image', upload.single('image'), async (req, res) => {
+    try {
+        const { description } = req.body;
+        const newImage = new Image({
+            filename: req.file.filename,
+            description: description
+        });
+        await newImage.save();
+        res.redirect('/add-image');  // Save the image to the database
+        // Redirect to a success page or back to upload page
+        // Change '/success' to your desired path
+    } catch (err) {
+        console.error('Error uploading image:', err);
+        res.status(500).send('Error saving image');
+    }
+});
+
+
+>>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
 
 app.post('/add-notice', async (req, res) => {
     try {
@@ -269,8 +298,42 @@ app.get("/calendar", isAuthenticated, (req, res) => {
     res.render("calendar");
 });
 
+app.use(express.json()); // To parse JSON bodies
+
+// Get all events
+app.get('/calendar/events', async (req, res) => {
+  try {
+    const events = await Calendar.find();
+    res.json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ message: 'Failed to fetch events.' });
+  }
+});
+
+// Add a new event
 app.post('/calendar', async (req, res) => {
+  const { name, date, type, description } = req.body;
+
+  if (!name || !date || !type) {
+    return res.status(400).json({ message: 'Name, date, and type are required fields.' });
+  }
+
+  try {
+    const newEvent = new Calendar({ name, date, type, description });
+    const savedEvent = await newEvent.save();
+    res.json(savedEvent);
+  } catch (error) {
+    console.error('Error adding event:', error);
+    res.status(500).json({ message: 'Failed to add event.' });
+  }
+});
+
+// Delete an event by ID
+// Delete an event by ID
+app.delete('/calendar/:id', async (req, res) => {
     try {
+<<<<<<< HEAD
         const newCalendar = new Calendar(req.body);
         const savedEvent = await newCalendar.save();
         res.status(201).json(savedEvent);
@@ -281,6 +344,26 @@ app.post('/calendar', async (req, res) => {
 });
 
 app.get('/view-notice', async (req, res) => {
+=======
+        const eventId = req.params.id;
+        const deletedEvent = await Calendar.findByIdAndDelete(eventId);
+        
+        if (deletedEvent) {
+            res.status(200).send({ message: 'Event deleted successfully' });
+        } else {
+            res.status(404).send({ message: 'Event not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(500).send({ message: 'Error deleting event' });
+    }
+});
+
+
+
+
+app.get('/get-images', async (req, res) => {
+>>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
     try {
         const notices = await Notice.find({});
         res.render('view-notice', { notices });
@@ -290,6 +373,31 @@ app.get('/view-notice', async (req, res) => {
     }
 });
 
+<<<<<<< HEAD
+=======
+
+
+  app.get('/view-image', (req, res) => {
+    res.render('view-image');
+  });
+
+  app.get('/view-notice', async (req, res) => {
+    try {
+        const notices = await Notice.find({});
+        console.log('Fetched Notices:', notices); // Check if notices are being fetched
+
+        // Render the view-notice.hbs page without using a layout
+        res.render('view-notice', { notices, layout: false });
+    } catch (err) {
+        console.error('Error fetching notices:', err);
+        res.status(500).send('Error fetching notices');
+    }
+});
+
+
+
+
+>>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
 app.get('/view-images', (req, res) => {
     Image.find({}, (err, images) => {
         if (err) {
