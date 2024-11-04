@@ -1,0 +1,17 @@
+<h1>Staff Records</h1>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Unique Code</th>
+        <th>Role</th>
+    </tr>
+    {{#each staff}}
+    <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.email}}</td>
+        <td>{{this.uniqueCode}}</td>
+        <td>{{this.role}}</td>
+    </tr>
+    {{/each}}
+</table>

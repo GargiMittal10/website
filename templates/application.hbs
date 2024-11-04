@@ -58,12 +58,13 @@
           <td>
             <form action="/admin/accept/{{this._id}}" method="POST" style="display: inline;" 
                   onsubmit="return confirm('Are you sure you want to accept this application?');">
-              <button type="submit" class="accept-btn">Accept</button>
+                <button type="submit" class="accept-btn">Accept</button>
             </form>
             <form action="/admin/decline/{{this._id}}" method="POST" style="display: inline;" 
                   onsubmit="return confirm('Are you sure you want to decline this application?');">
-              <button type="submit" class="decline-btn">Decline</button>
+                <button type="submit" class="decline-btn">Decline</button>
             </form>
+
           </td>
         </tr>
         {{/each}}

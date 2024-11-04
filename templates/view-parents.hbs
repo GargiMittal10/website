@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Records</title>
+    <style>
+        /* Parent Records Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .search-container input[type="date"] {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+            color: #555;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        table td {
+            color: #666;
+        }
+
+        table tr:last-child td {
+            border-bottom: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Parent Records</h1>
+
+    <!-- Search Bar for Date Filtering -->
+    <div class="search-container">
+        <form action="/admin/view-parents" method="GET">
+            <label for="searchDate">Filter by Date:</label>
+            <input type="date" id="searchDate" name="searchDate">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Unique Code</th>
+            <th>Role</th>
+        </tr>
+        {{#each parents}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.uniqueCode}}</td>
+            <td>{{this.role}}</td>
+        </tr>
+        {{/each}}
+    </table>
+
+</body>
+</html>

@@ -5,16 +5,13 @@ const hbs = require("hbs");
 const multer = require("multer");
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const { User, Activity, Notice, Image, Calendar, Application } = require('./mongodb'); 
+const { User, Activity, Notice, Image, Calendar, Application, Parent, Staff, Applicant, VolunteerRecord, StaffRecord, ParentRecord } = require('./mongodb'); 
 const mongoose = require('mongoose'); 
-const { sendApplicationEmail, sendCredentialEmail } = require('./utils/email');
+const { sendApplicationEmail, sendCredentialEmail, generateUniqueCode } = require('./utils/email');
 const crypto = require('crypto');
-
-
-
 const app = express();
-
-
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 hbs.registerHelper('json', function(context) {
     return JSON.stringify(context);
@@ -34,7 +31,6 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'hbs');
 app.set("views", path.join(__dirname, '../templates'));
 app.use(express.static('public'));
-
 
 const fs = require('fs');
 const uploadDir = path.join(__dirname, '../uploads');
@@ -69,49 +65,117 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    if (email === "gargimittal@gmail.com" && password === "1234") {
-        req.session.user = { name: "Gargi Mittal", email: "gargimittal@gmail.com" };
-        res.redirect("/volunteerDash");
-    }
-    else if(email==="garret@gmail.com" && password==="9876"){
-        req.session.user = { name: "Garret Fernendez", email: "garret@gmail.com" };
-        res.redirect("/staffDash");
-    }
-    else if(email==="anant@gmail.com" && password==="a123"){
-        req.session.user = { name: "Anant Mishra", email: "anant@gmail.com" };
-        res.redirect("/parents");
-    }
-    else if(email==="gargimittal.10102003@gmail.com" && password==="g123"){
-        req.session.user = { name: "Admin", email:"gargimittal.10102003@gmail.com" };
-        res.redirect("/admin");
-    }
-    else {
-        res.send("Invalid username or password");
-    }
+// Route to render signup page
+app.get("/signup", (req, res) => {
+    res.render("signup");
 });
 
 app.post("/signup", async (req, res) => {
-    const { name, email, password, role, uniqueCode } = req.body;
+    const { name, email, password, uniqueCode, role } = req.body;
 
     try {
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.send("User already exists with this email.");
+        let matchedSchema = null;
+
+        // Find the record based on the uniqueCode, email combination, and role
+        const parentRecord = await Parent.findOne({ uniqueCode, email });
+        const staffRecord = await Staff.findOne({ uniqueCode, email });
+        const applicantRecord = await Applicant.findOne({ uniqueCode, email, role: "Volunteer" }); // Assuming 'Volunteer' role as example
+
+        if (parentRecord && role === "Parent") {
+            matchedSchema = "Parent";
+        } else if (staffRecord && role === "Staff") {
+            matchedSchema = "Staff";
+        } else if (applicantRecord && role === "Volunteer") {
+            matchedSchema = "Volunteer";
         }
 
-        // Create new user
-        const newUser = new User({ name, email, password, role, uniqueCode });
-        await newUser.save();
+        // If no match is found, or if role is incorrect, deny access and show an error
+        if (!matchedSchema) {
+            return res.status(400).send("Invalid role, unique code, or email. Access denied.");
+        }
 
-        req.session.user = { name: newUser.name, email: newUser.email, role: newUser.role };
-        res.redirect("/login"); // Redirect after sign-up
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Store data in the appropriate schema based on matchedSchema
+        if (matchedSchema === "Parent") {
+            const newParentRecord = new ParentRecord({ name, email, password: hashedPassword, uniqueCode, role: "Parent" });
+            await newParentRecord.save();
+            req.session.user = { name, email, role: "Parent" };
+            return res.redirect("/parents");
+        } else if (matchedSchema === "Staff") {
+            const newStaffRecord = new StaffRecord({ name, email, password: hashedPassword, uniqueCode, role: "Staff" });
+            await newStaffRecord.save();
+            req.session.user = { name, email, role: "Staff" };
+            return res.redirect("/staffDash");
+        } else if (matchedSchema === "Volunteer") {
+            const newVolunteerRecord = new VolunteerRecord({ name, email, password: hashedPassword, uniqueCode, role: "Volunteer" });
+            await newVolunteerRecord.save();
+            req.session.user = { name, email, role: "Volunteer" };
+            return res.redirect("/volunteerDash");
+        }
+
+        res.status(400).send("Error identifying user schema.");
     } catch (error) {
         console.error("Error during sign-up:", error);
         res.status(500).send("Error during sign-up.");
+    }
+});
+
+async function findUserAndRole(email, password) {
+    // Check VolunteerRecord
+    const volunteer = await VolunteerRecord.findOne({ email });
+    if (volunteer && volunteer.password && await bcrypt.compare(password, volunteer.password)) {
+        return { user: volunteer, role: 'Volunteer' };
+    }
+
+    // Check StaffRecord
+    const staff = await StaffRecord.findOne({ email });
+    if (staff && staff.password && await bcrypt.compare(password, staff.password)) {
+        return { user: staff, role: 'Staff' };
+    }
+
+    // Check ParentRecord
+    const parent = await ParentRecord.findOne({ email });
+    if (parent && parent.password && await bcrypt.compare(password, parent.password)) {
+        return { user: parent, role: 'Parent' };
+    }
+
+    // If no match is found in any schema
+    return null;
+}
+
+app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        if (email === "gargimittal.10102003@gmail.com" && password === "g123") {
+            req.session.user = { name: "Admin", email: "gargimittal.10102003@gmail.com", role: "Admin" };
+            return res.redirect("/admin"); // Redirect to the admin dashboard
+        }
+        // Find user and role based on email and password
+        const result = await findUserAndRole(email, password);
+
+        if (result) {
+            const { user, role } = result;
+
+            // Store session data with role-specific information
+            req.session.user = { name: user.name, email: user.email, role };
+
+            // Redirect to the corresponding dashboard based on role
+            if (role === 'Volunteer') {
+                res.redirect("/volunteerDash");
+            } else if (role === 'Staff') {
+                res.redirect("/staffDash");
+            } else if (role === 'Parent') {
+                res.redirect("/parents");
+            }
+        } else {
+            res.send("Invalid email or password.");
+        }
+    } catch (error) {
+        console.error("Error during login:", error);
+        res.status(500).send("Error during login.");
     }
 });
 
@@ -134,13 +198,43 @@ app.get('/admin', isAuthenticated, async (req, res) => {
     }
 });
 
+app.get('/admin/view-parents', isAuthenticated, async (req, res) => {
+    try {
+        const parents = await ParentRecord.find(); // Fetch all entries in ParentRecord
+        res.render('view-parents', { parents });
+    } catch (error) {
+        console.error("Error fetching parents:", error);
+        res.status(500).send("Error loading parent records.");
+    }
+});
+
+// Route to view all staff in the admin dashboard
+app.get('/admin/view-staff', isAuthenticated, async (req, res) => {
+    try {
+        const staff = await StaffRecord.find(); // Fetch all entries in StaffRecord
+        res.render('view-staff', { staff });
+    } catch (error) {
+        console.error("Error fetching staff:", error);
+        res.status(500).send("Error loading staff records.");
+    }
+});
+
+// Route to view all volunteers in the admin dashboard
+app.get('/admin/view-volunteers', isAuthenticated, async (req, res) => {
+    try {
+        const volunteers = await VolunteerRecord.find(); // Fetch all entries in VolunteerRecord
+        res.render('view-volunteers', { volunteers });
+    } catch (error) {
+        console.error("Error fetching volunteers:", error);
+        res.status(500).send("Error loading volunteer records.");
+    }
+});
+
 app.get('/admin/add-credential', (req, res) => {
     const role = req.query.role || ''; // Get role from query, if any
     res.render('add-credential', { role });
 });
 
-
-// Route to render applications page for admin
 app.get('/admin/applications', isAuthenticated, async (req, res) => {
     try {
         const applications = await Application.find(); // Fetch all applications
@@ -155,17 +249,70 @@ app.post("/admin/send-credential", isAuthenticated, async (req, res) => {
     try {
         const { email, role } = req.body;
         const uniqueCode = await sendCredentialEmail(email, role);
-        
-        // Render the same page with a success message
+
+        // Save email and unique code in the respective schema based on role
+        if (role === "parent") {
+            const newParent = new Parent({ email, uniqueCode });
+            await newParent.save();
+        } else if (role === "staff") {
+            const newStaff = new Staff({ email, uniqueCode });
+            await newStaff.save();
+        }
+
         res.render("add-credential", { 
             role,
             successMessage: `Credential email sent successfully to ${email}`
         });
     } catch (err) {
+        console.error("Error sending credentials:", err.message);
         res.status(500).send("Error sending credentials");
     }
 });
 
+app.post("/admin/accept/:id", isAuthenticated, async (req, res) => {
+    try {
+        const applicationId = req.params.id;
+        const application = await Application.findById(applicationId);
+
+        if (application) {
+            application.status = "Accepted";
+            application.uniqueCode = generateUniqueCode(); // Generate a unique code
+            await application.save();
+
+            // Send acceptance email and save to Applicant schema
+            await sendApplicationEmail(application, "Accepted");
+
+            res.redirect("/admin/applications");
+        } else {
+            res.status(404).send("Application not found");
+        }
+    } catch (err) {
+        console.error("Error accepting application:", err.message);
+        res.status(500).send("Error accepting application");
+    }
+});
+
+app.post("/admin/decline/:id", isAuthenticated, async (req, res) => {
+    try {
+        const applicationId = req.params.id;
+        const application = await Application.findById(applicationId);
+
+        if (application) {
+            application.status = "Declined";
+            await application.save();
+
+            // Send decline email (optional)
+            await sendApplicationEmail(application, "Declined");
+
+            res.redirect("/admin/applications");
+        } else {
+            res.status(404).send("Application not found");
+        }
+    } catch (err) {
+        console.error("Error declining application:", err.message);
+        res.status(500).send("Error declining application");
+    }
+});
 
 app.get("/volunteerDash", isAuthenticated, (req, res) => {
     const username = req.session.user.name;
@@ -214,16 +361,6 @@ app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, r
     }
 });
 
-<<<<<<< HEAD
-app.delete("/delete-activity/:id", isAuthenticated, async (req, res) => {
-    try {
-        const deletedActivity = await Activity.findByIdAndDelete(req.params.id);
-=======
->>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
-
-
-
-
 app.get("/logout", (req, res) => {
     req.session.destroy();
     res.redirect("/login");
@@ -232,13 +369,9 @@ app.get("/logout", (req, res) => {
 app.get("/add-notice", (req, res) => {
     res.render('add-notice');
 });
-<<<<<<< HEAD
-=======
 app.get("/view-calendar", isAuthenticated, (req, res) => {
     res.render("view-calendar"); // Ensure you have a view-calendar.hbs template
 });
-
-
   
   // Handle image upload (POST request)
   app.post('/add-image', upload.single('image'), async (req, res) => {
@@ -257,9 +390,6 @@ app.get("/view-calendar", isAuthenticated, (req, res) => {
         res.status(500).send('Error saving image');
     }
 });
-
-
->>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
 
 app.post('/add-notice', async (req, res) => {
     try {
@@ -333,18 +463,6 @@ app.post('/calendar', async (req, res) => {
 // Delete an event by ID
 app.delete('/calendar/:id', async (req, res) => {
     try {
-<<<<<<< HEAD
-        const newCalendar = new Calendar(req.body);
-        const savedEvent = await newCalendar.save();
-        res.status(201).json(savedEvent);
-    } catch (err) {
-        console.error('Error saving event:', err);
-        res.status(500).send('Error saving event');
-    }
-});
-
-app.get('/view-notice', async (req, res) => {
-=======
         const eventId = req.params.id;
         const deletedEvent = await Calendar.findByIdAndDelete(eventId);
         
@@ -359,11 +477,7 @@ app.get('/view-notice', async (req, res) => {
     }
 });
 
-
-
-
 app.get('/get-images', async (req, res) => {
->>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
     try {
         const notices = await Notice.find({});
         res.render('view-notice', { notices });
@@ -372,10 +486,6 @@ app.get('/get-images', async (req, res) => {
         res.status(500).send('Error fetching notices');
     }
 });
-
-<<<<<<< HEAD
-=======
-
 
   app.get('/view-image', (req, res) => {
     res.render('view-image');
@@ -394,10 +504,6 @@ app.get('/get-images', async (req, res) => {
     }
 });
 
-
-
-
->>>>>>> 6ef68d63de5bc81b07fe2d158acf09f37e4fd8f0
 app.get('/view-images', (req, res) => {
     Image.find({}, (err, images) => {
         if (err) {

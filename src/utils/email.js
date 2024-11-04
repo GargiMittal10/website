@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
-const crypto = require('crypto');
 require('dotenv').config();
+const { Applicant } = require('../mongodb');
+const crypto = require('crypto');
 
 // Function to generate a unique code
 function generateUniqueCode() {
@@ -21,9 +22,11 @@ const transporter = nodemailer.createTransport({
 // Function to send acceptance/rejection emails
 async function sendApplicationEmail(application, status) {
     const subject = status === "Accepted" ? "Application Accepted" : "Application Declined";
+    const uniqueCode = generateUniqueCode();
+
     const text = status === "Accepted" 
-        ? `Dear ${application.name},\n\nYour application as ${application.role} has been accepted! Here is your unique code: ${application.uniqueCode}. Welcome aboard!\n\nBest regards,\nNavkshitij Team`
-        : `Dear ${application.name},\n\nWe regret to inform you that your application as ${application.role} has been declined. We appreciate your interest and effort and encourage you to apply again in the future.\n\nBest regards,\nNavkshitij Team`;
+        ? `Dear ${application.name},\n\nYour application as ${application.role} has been accepted! Here is your unique code: ${uniqueCode}. Welcome aboard!\n\nBest regards,\nNavkshitij Team`
+        : `Dear ${application.name},\n\nWe regret to inform you that your application as ${application.role} has been declined. We appreciate your interest and encourage you to apply again.\n\nBest regards,\nNavkshitij Team`;
 
     try {
         await transporter.sendMail({
@@ -32,7 +35,18 @@ async function sendApplicationEmail(application, status) {
             subject,
             text,
         });
+
         console.log(`Email sent to ${application.email} regarding application status: ${status}`);
+
+        if (status === "Accepted") {
+            // Save accepted applicant to the Applicant schema
+            const newApplicant = new Applicant({
+                email: application.email,
+                uniqueCode: uniqueCode,
+                role: application.role
+            });
+            await newApplicant.save();
+        }
     } catch (error) {
         console.error(`Failed to send application email to ${application.email}:`, error.message);
     }
@@ -59,4 +73,4 @@ async function sendCredentialEmail(email, role) {
     return uniqueCode;
 }
 
-module.exports = { sendApplicationEmail, sendCredentialEmail };
+module.exports = { sendApplicationEmail, sendCredentialEmail,generateUniqueCode };

@@ -110,9 +110,62 @@ const applicationSchema = new mongoose.Schema({
   uniqueCode: { type: String } // New field for storing the unique code
 });
 
-
-
 const Application = mongoose.model('Application', applicationSchema);
+
+const ParentSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true }
+});
+const Parent = mongoose.model('Parent', ParentSchema);
+
+// Staff Schema
+const StaffSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true }
+});
+const Staff = mongoose.model('Staff', StaffSchema);
+
+const applicantSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true },
+  role: { type: String, enum: ['Volunteer', 'Intern', 'volunteer', 'intern'], required: true },
+  dateAccepted: { type: Date, default: Date.now }
+});
+
+const Applicant = mongoose.model('Applicant', applicantSchema);
+
+ParentSchema.index({ email: 1, uniqueCode: 1 }, { unique: true });
+StaffSchema.index({ email: 1, uniqueCode: 1 }, { unique: true });
+applicantSchema.index({ email: 1, uniqueCode: 1 }, { unique: true });
+
+const VolunteerRecordSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true },
+  password: { type: String, required: true }, // Store the hashed password
+  role: { type: String, default: "volunteer" }
+});
+const VolunteerRecord = mongoose.model("VolunteerRecord", VolunteerRecordSchema);
+
+// Staff Record Schema
+const StaffRecordSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true },
+  password: { type: String, required: true }, // Store the hashed password
+  role: { type: String, default: "staff" }
+});
+const StaffRecord = mongoose.model("StaffRecord", StaffRecordSchema);
+
+// Parent Record Schema
+const ParentRecordSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  uniqueCode: { type: String, required: true },
+  password: { type: String, required: true }, // Store the hashed password
+  role: { type: String, default: "parent" }
+});
+const ParentRecord = mongoose.model("ParentRecord", ParentRecordSchema);
 
 // Export the models
 module.exports = {
@@ -121,5 +174,11 @@ module.exports = {
     Notice,
     Image,
     Calendar,
-    Application // Export Activity model
+    Application,
+    Parent, // Export Parent model
+    Staff,
+    Applicant,
+    VolunteerRecord,
+    StaffRecord,
+    ParentRecord
 };
