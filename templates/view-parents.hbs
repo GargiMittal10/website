@@ -78,21 +78,49 @@
     </div>
 
     <table>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Unique Code</th>
-            <th>Role</th>
-        </tr>
-        {{#each parents}}
-        <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.email}}</td>
-            <td>{{this.uniqueCode}}</td>
-            <td>{{this.role}}</td>
-        </tr>
-        {{/each}}
-    </table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Unique Code</th>
+        <th>Role</th>
+        <th>Actions</th> <!-- New column for actions -->
+    </tr>
+    {{#each parents}}
+    <tr data-id="{{this._id}}">
+        <td>{{this.name}}</td>
+        <td>{{this.email}}</td>
+        <td>{{this.uniqueCode}}</td>
+        <td>{{this.role}}</td>
+        <td>
+            <button class="delete-btn" data-id="{{this._id}}">Delete</button>
+        </td>
+    </tr>
+    {{/each}}
+</table>
+<script>
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const parentId = this.getAttribute('data-id');
+
+        if (confirm("Are you sure you want to delete this parent record?")) {
+            fetch(`/api/parents/${parentId}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the deleted entry from the DOM
+                    const row = this.closest('tr');
+                    row.remove();
+                } else {
+                    alert(data.message || 'Failed to delete the parent record');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+});
+</script>
 
 </body>
 </html>

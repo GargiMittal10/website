@@ -314,6 +314,54 @@ app.post("/admin/decline/:id", isAuthenticated, async (req, res) => {
     }
 });
 
+app.delete('/api/staff/:id', isAuthenticated, async (req, res) => {
+    try {
+        const staffId = req.params.id;
+        const deletedStaff = await StaffRecord.findByIdAndDelete(staffId);
+
+        if (deletedStaff) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: "Staff record not found" });
+        }
+    } catch (error) {
+        console.error("Error deleting staff record:", error);
+        res.status(500).json({ success: false, message: "Error deleting staff record" });
+    }
+});
+
+app.delete('/api/parents/:id', isAuthenticated, async (req, res) => {
+    try {
+        const parentId = req.params.id;
+        const deletedParent = await ParentRecord.findByIdAndDelete(parentId);
+
+        if (deletedParent) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: "Parent record not found" });
+        }
+    } catch (error) {
+        console.error("Error deleting parent record:", error);
+        res.status(500).json({ success: false, message: "Error deleting parent record" });
+    }
+});
+
+app.delete('/api/volunteers/:id', isAuthenticated, async (req, res) => {
+    try {
+        const volunteerId = req.params.id;
+        const deletedVolunteer = await VolunteerRecord.findByIdAndDelete(volunteerId);
+
+        if (deletedVolunteer) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false, message: "Volunteer record not found" });
+        }
+    } catch (error) {
+        console.error("Error deleting volunteer record:", error);
+        res.status(500).json({ success: false, message: "Error deleting volunteer record" });
+    }
+});
+
 app.get("/volunteerDash", isAuthenticated, (req, res) => {
     const username = req.session.user.name;
     res.render("volunteerDash", { username });
