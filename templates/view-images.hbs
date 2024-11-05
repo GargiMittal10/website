@@ -7,13 +7,19 @@
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
+        /* Background gradient overlaid on the image */
+       background-image: 
+      
+          linear-gradient(to bottom, #fb47009f, rgba(225, 59, 22, 0.747)), 
+          url("./images/smilingbg.jpg");
+        background-size: cover; /* Cover the whole area */
+        background-position: center; /* Center the background image */
         padding: 20px;
       }
       .image-container {
         max-width: 800px;
         margin: 0 auto;
-        background-color: white;
+        background-color: white; /* Container background */
         border-radius: 8px;
         padding: 20px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -31,29 +37,31 @@
         font-size: 0.9em; /* Adjust font size for description */
         color: #555;
       }
+      h1 {
+        text-align: center;
+      }
+      .filter-form {
+        text-align: center;
+        margin-bottom: 20px;
+      }
     </style>
   </head>
   <body>
     <h1>Uploaded Images</h1>
+    <div class="filter-form">
+      <form action="/view-images" method="GET">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" required />
+        <button type="submit">Filter</button>
+      </form>
+    </div>
     <div class="image-container">
-      {{!-- <% images.forEach(function(image) { %>
-      <div class="image">
-        <img
-          src="/uploads/<%= image.filename %>"
-          alt="<%= image.description %>"
-        />
-
-        <p class="description"><%= image.description %></p>
-      </div>
-      <% }); %> --}}
-
-      <% images.forEach(image => { %>
+      {{#each images}}
         <div class="image">
-            <img src="/uploads/<%= image.filename %>" alt="<%= image.description %>" />
-            <p class="description"><%= image.description %></p>
+          <img src="/uploads/{{this.filename}}" alt="{{this.description}}" />
+          <p class="description">{{this.description}}</p>
         </div>
-    <% }) %>
-
+      {{/each}}
     </div>
   </body>
 </html>
