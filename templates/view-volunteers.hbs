@@ -1,46 +1,214 @@
-<h1>Volunteer Records</h1>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Unique Code</th>
-        <th>Role</th>
-        <th>Actions</th> <!-- New column for actions -->
-    </tr>
-    {{#each volunteers}}
-    <tr data-id="{{this._id}}">
-        <td>{{this.name}}</td>
-        <td>{{this.email}}</td>
-        <td>{{this.uniqueCode}}</td>
-        <td>{{this.role}}</td>
-        <td>
-            <button class="delete-btn" data-id="{{this._id}}">Delete</button>
-        </td>
-    </tr>
-    {{/each}}
-</table>
-
-<script>
-document.querySelectorAll('.delete-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const volunteerId = this.getAttribute('data-id');
-
-        if (confirm("Are you sure you want to delete this volunteer record?")) {
-            fetch(`/api/volunteers/${volunteerId}`, {
-                method: 'DELETE',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the deleted entry from the DOM
-                    const row = this.closest('tr');
-                    row.remove();
-                } else {
-                    alert(data.message || 'Failed to delete the volunteer record');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
-    });
-});
-</script>
+
+        body {
+            background: linear-gradient(to bottom right, #f4f4f4, #e0f7fa);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #fe7b53;
+            text-align: center;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        h1::after {
+            content: '';
+            width: 60px;
+            height: 4px;
+            background: #fe7b53;
+            display: block;
+            margin: 8px auto 0;
+            border-radius: 3px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="date"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #fe7b53;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #e64a19;
+            transform: translateY(-3px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #fe7b53;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        td {
+            color: #555;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .delete-btn {
+            padding: 8px 15px;
+            background-color: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 30px;
+            background-color: #fe7b53;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #e64a19;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Volunteer Records</h1>
+
+        <div class="search-container">
+            <form action="/admin/view-volunteers" method="GET">
+                <input type="date" id="searchDate" name="searchDate" placeholder="Filter by Date">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Unique Code</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each volunteers}}
+                <tr data-id="{{this._id}}">
+                    <td>{{this.name}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{this.uniqueCode}}</td>
+                    <td>{{this.role}}</td>
+                    <td>
+                        <button class="delete-btn" data-id="{{this._id}}">Delete</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <a href="/admin" class="back-button">Back to Admin Panel</a>
+    </div>
+
+    <script>
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const volunteerId = this.getAttribute('data-id');
+
+                if (confirm("Are you sure you want to delete this volunteer record?")) {
+                    fetch(`/api/volunteers/${volunteerId}`, {
+                        method: 'DELETE',
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const row = this.closest('tr');
+                            row.remove();
+                        } else {
+                            alert(data.message || 'Failed to delete the volunteer record');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

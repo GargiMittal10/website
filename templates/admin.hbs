@@ -252,6 +252,21 @@
   td, th {
     padding: 0;
   }
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 5px; /* Decrease or remove gap as needed */
+    align-items: center;
+}
+
+.nav-link {
+    padding: 0 8px; /* Reduces padding to bring links closer */
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
   
   @font-face {
     font-family: webflow-icons;
@@ -3289,12 +3304,15 @@
     font-size: 16px;
   }
   
-  .hero-section {
-    background-image: linear-gradient(360deg, #222, #2220), url("./images/guardian-dashboard-bg.jpeg");
-    background-position: 0 0, 50%;
-    background-size: auto, cover;
-    min-height: 550px;
+ 
+    .hero-section {
+   background-image: linear-gradient(360deg, #222, #2220), url("./images/guardianDash-bg.png");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    min-height: 100vh; /* Full viewport height */
   }
+  
   
   .hero-section.about-hero {
     background-image: linear-gradient(360deg, #222, #2220), url("https://cdn.prod.website-files.com/66d87265f869f99a5b9f6b91/66d87265f869f99a5b9f6c2d_felix-rostig-UmV2wr-Vbq8-unsplash.jpg");
@@ -3314,6 +3332,7 @@
     position: sticky;
     top: 0;
   }
+  
   
   .navbar {
     background-color: white;
@@ -4550,7 +4569,14 @@
     }
   
     .footer-logo-column {
-      margin-bottom: 30px;
+      
+    }
+    #logo{
+       background-color: #f8f8f8; /* Background color */
+    border: 1px solid #ddd; /* Border around the logo */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px;
+
     }
   
     .social-footer-link {
@@ -4597,6 +4623,24 @@
     .shop-category-menu {
       padding-right: 0;
     }
+    nav.nav-menu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 15px;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    width: 100%; /* Ensures it uses full width */
+}
+
+nav.nav-menu a {
+    text-decoration: none;
+    color: inherit;
+    padding: 5px 10px;
+    white-space: nowrap; /* Prevents text wrapping within links */
+}
+
   
     .donate-heading-1 {
       font-size: 30px;
@@ -4681,38 +4725,13 @@
   }
 
 
-  #logo{
-    
-    width: 185px;
-    height: auto;
-    margin-right: auto; 
-   
-  .drop-down {
-        position: relative;
-        display: inline-block;
-    }
-
-    .drop-down .content {
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
-
-    .drop-down .content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-    }
-
-    .drop-down .content a:hover {
-        background-color: #f1f1f1;
-    }
-
- }
-  </style>
+  #logo {
+    width: 80px !important;       /* Set width and force it with !important */
+    height: auto !important;      /* Maintain aspect ratio */
+    margin-left: auto;            /* Shift to the right */
+    max-width: 90px;              /* Ensure it doesn’t expand beyond this size */
+}
+    </style>
 </head>
 <body>
     <div class="menu-wrapper">
@@ -4734,7 +4753,7 @@
                 <div class="nav-wrapper">
                     <a href="/" aria-current="page" class="brand w-nav-brand w--current"><img id="logo" src="images/navkshitijLogo.png" alt="Navkshitij Logo" /></a>
                     <nav role="navigation" class="nav-menu w-nav-menu">
-                        <a href="/" aria-current="page" class="nav-link w-nav-link w--current">Profile</a>
+                        
                         <a href="/admin/view-parents" class="nav-link w-nav-link">View Parents</a>
                         <a href="/admin/view-staff" class="nav-link w-nav-link">View Staff</a>
                         <a href="/admin/view-volunteers" class="nav-link w-nav-link">View Volunteers/Interns</a>
@@ -4750,27 +4769,12 @@
     <div class="hero-section">
         <div class="container">
             <div class="hero-wrapper">
-                <h1 class="hero-heading">Welcome to <br />Guardian Dashboard</h1>
+                <h1 class="hero-heading">Welcome to <br />Admin Dashboard</h1>
                 <div class="hero-button-wrapper">
-                    <a href="/shop" class="btn light outline w-button" id="view-profilebtn">View profile</a>
+                 
                 </div>
             </div>
         </div>
     </div>
-    <script>
-    document.getElementById("credentialBtn").addEventListener("click", function() {
-        const dropdownContent = document.getElementById("dropdownContent");
-        dropdownContent.style.display = dropdownContent.style.display === "none" ? "block" : "none";
-    });
-    
-    // Hide dropdown when clicking outside
-    document.addEventListener("click", function(event) {
-        const dropdownContent = document.getElementById("dropdownContent");
-        if (!event.target.closest(".drop-down")) {
-            dropdownContent.style.display = "none";
-        }
-    });
-</script>
-
 </body>
 </html>

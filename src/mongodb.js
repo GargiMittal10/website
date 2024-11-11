@@ -51,12 +51,11 @@ const User = mongoose.model("User", FormSchema);
 
 // Schema for Activities
 const ActivitySchema = new mongoose.Schema({
-    user: { type: String, required: true },  // Reference by user's email
-    description: { type: String, required: true },
-    media: { type: String },  // Optional for media files
-    date: { type: Date, default: Date.now },
-    hours: { type: Number, required: true },
-    date: { type: Date, default: Date.now },
+  user: { type: String, required: true },
+  description: { type: String, required: true },
+  media: { type: String },
+  hours: { type: Number, required: true },
+  date: { type: Date, default: Date.now }
 });
 
 // Create a model for activities

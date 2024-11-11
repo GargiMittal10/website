@@ -344,13 +344,19 @@
     </form>
 
     <!-- Task List Section -->
-    <div class="task-list" id="taskList"></div>
+    <div class="task-list" id="taskList">
+      {{#each activities}}
+      <div class="task-card" data-id="{{_id}}">
+          <h3 class="task-title">{{description}}</h3>
+          <p>{{hours}} hours spent</p>
+          <p>Added on: {{date}}</p>   
+          <button onclick="deleteActivity('{{_id}}')">Delete Activity</button>
+      </div>
+      {{/each}}
+    </div>
   </div>
 
   <script>
-    const taskList = document.getElementById('taskList');
-    const tasks = [];
-
     // Form submission to add a new task
     document.getElementById('activityForm').addEventListener('submit', async function (event) {
         event.preventDefault();  // Prevent page reload on form submission
@@ -385,43 +391,20 @@
     });
 
     // Function to add a task to the UI
-    function addTaskToUI(task) {
-        const taskCard = document.createElement('div');
-        taskCard.classList.add('task-card');
+    function addTaskToUI(activity) {
+    const taskList = document.getElementById('taskList');
+    const taskCard = document.createElement('div');
+    taskCard.classList.add('task-card');
+    taskCard.setAttribute('data-id', activity._id);  // Use the correct _id from response
+    taskCard.innerHTML = `
+        <h3 class="task-title">${activity.description}</h3>
+        <p>${activity.hours} hours spent</p>
+        <p>Added on: ${new Date(activity.date).toLocaleString()}</p>
+        <button onclick="deleteActivity('${activity._id}')">Delete Activity</button>  <!-- Pass the correct _id here -->
+    `;
+    taskList.appendChild(taskCard);
+}
 
-        let mediaElement = '';
-        if (task.media && task.media.startsWith('uploads/')) {
-            const fileExtension = task.media.split('.').pop().toLowerCase();
-            if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
-                mediaElement = `<img src="/${task.media}" alt="Activity Media" style="width: 100%; height: 150px; object-fit: cover;" />`;
-            } else if (['mp4', 'mov'].includes(fileExtension)) {
-                mediaElement = `<video width="100%" height="150" controls>
-                                  <source src="/${task.media}" type="video/${fileExtension}">
-                                  Your browser does not support the video tag.
-                                </video>`;
-            }
-        }
-
-        const taskIndex = tasks.length; // Index of task
-        taskCard.innerHTML = `
-            <h3 class="task-title">${task.description}</h3>
-            <p>${task.hours} hours spent</p>
-            <p>Added on: ${task.date}</p>   
-            ${mediaElement}
-            <div class="menu-container">
-                <button class="menu-btn" onclick="toggleMenu(${taskIndex})">⋮</button>
-                <div class="menu-dropdown" id="menu-${taskIndex}">
-                    <button onclick="deleteTask(${taskIndex})">Delete</button>
-                </div>
-            </div>
-        `;
-
-        taskList.appendChild(taskCard);
-        tasks.push(task);
-
-        // Scroll to the newly added task
-        taskCard.scrollIntoView({ behavior: "smooth" });
-    }
 
     // Function to clear the form after submission
     function clearForm() {
@@ -430,33 +413,34 @@
         document.getElementById('media').value = '';
     }
 
-    // Function to toggle the dropdown menu
-    function toggleMenu(index) {
-        const menu = document.getElementById(`menu-${index}`);
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-
-    // Function to delete a task
-    function deleteTask(index) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            tasks.splice(index, 1); // Remove task from array
-            renderTasks();
+    document.getElementById('backButton').addEventListener('click', function() {
+        window.history.back(); // Go back to the previous page
+    });
+    
+    // Function to delete an activity
+   async function deleteActivity(activityId) {
+    if (confirm('Are you sure you want to delete this activity?')) {
+        try {
+            const response = await fetch(`/activity/${activityId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                // Remove the element from the DOM after the deletion is successful
+                document.querySelector(`.task-card[data-id="${activityId}"]`).remove();
+                alert("Activity deleted successfully!");
+            } else {
+                alert("Failed to delete the activity. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error deleting activity:", error);
         }
     }
-
-    // Function to re-render the task list after deleting a task
-    function renderTasks() {
-        taskList.innerHTML = '';
-        tasks.forEach((task, index) => {
-            addTaskToUI(task);
-        });
-    }
-
-    document.getElementById('backButton').addEventListener('click', function() {
-            window.history.back(); // Go back to the previous page
-        });
+}
 
   </script>
-</body>
-
 </html>
+</body>

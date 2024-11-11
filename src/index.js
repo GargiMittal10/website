@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require("express");
 const path = require("path");
 const hbs = require("hbs");
+hbs.registerHelper("eq", function (a, b) {
+    return a === b;
+});
 const multer = require("multer");
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -31,6 +34,8 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'hbs');
 app.set("views", path.join(__dirname, '../templates'));
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 
 const fs = require('fs');
 const uploadDir = path.join(__dirname, '../uploads');
@@ -179,6 +184,11 @@ app.post("/login", async (req, res) => {
     }
 });
 
+app.get('/application', isAuthenticated, (req, res) => {
+    // Load and render the application page
+    res.render('application'); // Assuming 'application' is the template name
+});
+
 // Admin Dashboard Route
 app.get('/admin', isAuthenticated, async (req, res) => {
     if (req.session.user && req.session.user.email === "gargimittal.10102003@gmail.com") {
@@ -237,8 +247,23 @@ app.get('/admin/add-credential', (req, res) => {
 
 app.get('/admin/applications', isAuthenticated, async (req, res) => {
     try {
-        const applications = await Application.find(); // Fetch all applications
-        res.render("application", { applications });
+        // Fetch applications that have corresponding user data with files uploaded
+        const applications = await Application.find().lean();
+
+        // Filter applications to include only those with a User record that has photo, aadhar, and signature uploaded
+        const validApplications = [];
+        for (const application of applications) {
+            const userDetails = await User.findOne({ email: application.email }).lean();
+            if (userDetails && userDetails.photo && userDetails.aadhar && userDetails.signature) {
+                validApplications.push({
+                    ...application,
+                    userDetails,
+                });
+            }
+        }
+
+        // Render applications with valid user details only
+        res.render("application", { applications: validApplications });
     } catch (err) {
         console.error("Error fetching applications:", err.message);
         res.status(500).send("Error loading applications");
@@ -314,6 +339,28 @@ app.post("/admin/decline/:id", isAuthenticated, async (req, res) => {
     }
 });
 
+app.get('/admin/application-details/:id', isAuthenticated, async (req, res) => {
+    try {
+        const application = await Application.findById(req.params.id);
+        const userDetails = await User.findOne({ email: application.email });
+
+        if (application && userDetails) {
+            res.render('application-details', {
+                application,
+                userDetails,
+                photoUrl: `/uploads/${userDetails.photo}`,
+                aadharUrl: `/uploads/${userDetails.aadhar}`,
+                signatureUrl: `/uploads/${userDetails.signature}`
+            });
+        } else {
+            res.status(404).send("Application not found");
+        }
+    } catch (error) {
+        console.error("Error fetching application details:", error);
+        res.status(500).send("Error fetching application details");
+    }
+});
+
 app.delete('/api/staff/:id', isAuthenticated, async (req, res) => {
     try {
         const staffId = req.params.id;
@@ -377,6 +424,17 @@ app.get("/parents", isAuthenticated, (req, res) => {
     res.render("parents", { username });
 });
 
+app.get('/vol-management', isAuthenticated, async (req, res) => {
+    try {
+        // Fetch activities for the logged-in user
+        const activities = await Activity.find({ user: req.session.user.email });
+        res.render('vol-management', { activities });
+    } catch (err) {
+        console.error('Error fetching activities:', err);
+        res.status(500).send('Error fetching activities');
+    }
+});
+
 // My Activities Route
 app.get("/my-activities", isAuthenticated, async (req, res) => {
     try {
@@ -397,15 +455,31 @@ app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, r
         });
 
         await newActivity.save();
-        res.json({
-            description: newActivity.description,
-            hours: newActivity.hours,
-            media: req.file ? req.file.filename : null,
-            date: newActivity.date.toLocaleString() 
-        });
-
+        res.json(newActivity);  // Return the entire saved activity object
     } catch (err) {
         res.status(500).send("Error adding activity: " + err.message);
+    }
+});
+
+app.delete('/activity/:id', isAuthenticated, async (req, res) => {
+    try {
+        const activityId = req.params.id;
+
+        // Check if the activityId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(activityId)) {
+            return res.status(400).json({ message: 'Invalid activity ID' });
+        }
+
+        const deletedActivity = await Activity.findByIdAndDelete(activityId);
+        
+        if (deletedActivity) {
+            res.status(200).json({ message: 'Activity deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Activity not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting activity:', error);
+        res.status(500).json({ message: 'Error deleting activity' });
     }
 });
 
@@ -508,7 +582,6 @@ app.post('/calendar', async (req, res) => {
 });
 
 // Delete an event by ID
-// Delete an event by ID
 app.delete('/calendar/:id', async (req, res) => {
     try {
         const eventId = req.params.id;
@@ -577,9 +650,18 @@ app.post("/submit-form", upload.fields([
             return res.status(400).send("Application with this email already exists.");
         }
 
-        const newUser = new User(req.body);
-        await newUser.save();
+        // Create a new User instance, explicitly setting file paths from req.files
+        const newUser = new User({
+            ...req.body,
+            photo: req.files['photo'] ? req.files['photo'][0].filename : null,
+            aadhar: req.files['aadhar'] ? req.files['aadhar'][0].filename : null,
+            signature: req.files['signature'] ? req.files['signature'][0].filename : null,
+        });
 
+        await newUser.save();
+        console.log('Saved User:', newUser); // Confirm saved data
+
+        // Create a new Application instance
         const newApplication = new Application({
             name: req.body.name,
             email: req.body.email,

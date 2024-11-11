@@ -101,10 +101,25 @@
         .delete-btn:hover {
             background-color: #ff3333;
         }
+        .back-btn {
+        background-color: #ff7f5c;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-bottom: 20px;
+        transition: background-color 0.3s ease;
+    }
+    .back-btn:hover {
+        background-color: #ff6b43;
+    }
     </style>
 </head>
 <body>
     <div class="hero">
+        <button class="back-btn" onclick="goToDashboard()">Back to Dashboard</button>
         <div id="calendar"></div>
         <div class="event-form">
             <h3>Add New Event</h3>
@@ -138,6 +153,9 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/js/evo-calendar.min.js"></script>
     <script>
+        function goToDashboard() {
+            window.location.href = '/staffDash'; // Update with the correct URL for your staff dashboard
+        }
     let selectedEventId = null;
 
     $(document).ready(async function() {
@@ -159,24 +177,24 @@
     });
 
     // Function to load events from the database
-    async function loadEvents() {
-        try {
-            const response = await fetch('/calendar/events'); // Change the endpoint to match your API
-            if (response.ok) {
-                const events = await response.json();
-                events.forEach(event => {
-                    // Add event to calendar
-                    $('#calendar').evoCalendar('addCalendarEvent', event);
-                    // Display event in the event list
-                    displayEvent(event);
-                });
-            } else {
-                console.error('Failed to load events:', response.status);
-            }
-        } catch (error) {
-            console.error('Error loading events:', error);
+    // Function to load events from the database
+async function loadEvents() {
+    try {
+        const response = await fetch('/calendar/events'); // Change the endpoint to match your API
+        if (response.ok) {
+            const events = await response.json();
+            events.forEach(event => {
+                event.id = event._id; // Set the id property expected by evoCalendar
+                $('#calendar').evoCalendar('addCalendarEvent', event);
+                displayEvent(event); // Display event below the form
+            });
+        } else {
+            console.error('Failed to load events:', response.status);
         }
+    } catch (error) {
+        console.error('Error loading events:', error);
     }
+}
 
     // Function to add a new event to the calendar and database
     async function addEvent() {
@@ -235,21 +253,16 @@
     const eventList = document.getElementById('eventList');
     const eventItem = document.createElement('div');
     eventItem.className = 'event-item';
-    eventItem.setAttribute('data-id', event.id); // Store the event ID as a data attribute
+    eventItem.setAttribute('data-id', event._id || event.id); // Handle both cases
     eventItem.innerHTML = `
         <strong>${event.name}</strong><br>
         Date: ${event.date}<br>
         Type: ${event.type}<br>
-        Description: ${event.description}
-        <button class="delete-btn" onclick="deleteEvent('${event.id}')">Delete</button>
+        Description: ${event.description || ''}
+        <button class="delete-btn" onclick="deleteEvent('${event._id || event.id}')">Delete</button>
     `;
     eventList.appendChild(eventItem);
-}
-
-
-
-    // Function to delete an event by its ID
-    
+}   
     
     // Function to delete an event by its ID
 async function deleteEvent(eventId) {
@@ -277,7 +290,6 @@ async function deleteEvent(eventId) {
         alert('Error deleting event. Please try again.');
     }
 }
-
 
 </script>
 

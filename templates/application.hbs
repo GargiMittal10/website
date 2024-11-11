@@ -4,74 +4,227 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@300&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom right, #f4f4f4, #e0f7fa);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 30px;
+            color: #fe7b53;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        h1::after {
+            content: '';
+            width: 60px;
+            height: 4px;
+            background: #fe7b53;
+            display: block;
+            margin: 8px auto 0;
+            border-radius: 3px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="date"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #fe7b53;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #e64a19;
+            transform: translateY(-3px);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 16px;
+            margin-top: 20px;
+            background-color: #fff;
         }
+
         th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 15px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
+
         th {
-            background-color: #f4f4f4;
+            background-color: #fe7b53;
+            color: #fff;
+            text-transform: uppercase;
         }
-        button {
-            padding: 5px 10px;
-            margin: 0 2px;
+
+        td a {
+            color: #2980b9;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
             border: none;
-            border-radius: 3px;
+            font-size: 15px;
             cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
+
         .accept-btn {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #27ae60;
         }
+
+        .accept-btn:hover {
+            background-color: #1e8449;
+            transform: translateY(-3px);
+        }
+
         .decline-btn {
-            background-color: #f44336;
-            color: white;
+            background-color: #e74c3c;
+        }
+
+        .decline-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+
+        .status {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 30px;
+            background-color: #fd7146;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #e64a19;
+            transform: translateY(-3px);
+        }
+
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            table, th, td {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
 
-    {{#if applications.length}}
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each applications}}
-        <tr>
-          <td>{{this.name}}</td>
-          <td>{{this.email}}</td>
-          <td>{{this.role}}</td>
-          <td>{{this.status}}</td>
-          <td>
-            <form action="/admin/accept/{{this._id}}" method="POST" style="display: inline;" 
-                  onsubmit="return confirm('Are you sure you want to accept this application?');">
-                <button type="submit" class="accept-btn">Accept</button>
+        <!-- Search Bar for Date Filtering -->
+        <div class="search-container">
+            <form action="/admin/applications" method="GET">
+                <input type="date" id="searchDate" name="searchDate" placeholder="Filter by Date">
+                <button type="submit">Search</button>
             </form>
-            <form action="/admin/decline/{{this._id}}" method="POST" style="display: inline;" 
-                  onsubmit="return confirm('Are you sure you want to decline this application?');">
-                <button type="submit" class="decline-btn">Decline</button>
-            </form>
+        </div>
 
-          </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-    {{else}}
-      <p>No applications to review at the moment.</p>
-    {{/if}}
+        {{#if applications.length}}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each applications}}
+                <tr>
+                    <td><a href="/admin/application-details/{{this._id}}">{{this.name}}</a></td>
+                    <td>{{this.email}}</td>
+                    <td><span class="status">{{this.status}}</span></td>
+                    <td>
+                        {{#if (eq this.status "Pending")}}
+                            <form action="/admin/accept/{{this._id}}" method="POST" style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to accept this application?');">
+                                <button type="submit" class="btn accept-btn">Accept</button>
+                            </form>
+                            <form action="/admin/decline/{{this._id}}" method="POST" style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to decline this application?');">
+                                <button type="submit" class="btn decline-btn">Decline</button>
+                            </form>
+                        {{else}}
+                            <em>{{this.status}}</em>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+          <p>No applications to review at the moment.</p>
+        {{/if}}
+
+        <a href="/admin" class="back-button">Back to Admin Panel</a>
+    </div>
 </body>
 </html>

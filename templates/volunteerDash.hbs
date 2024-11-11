@@ -2,7 +2,7 @@
 <html data-wf-domain="garrets-fabulous-site.webflow.io" data-wf-page="66d87265f869f99a5b9f6bde" data-wf-site="66d87265f869f99a5b9f6b91" data-wf-status="1" lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Guardians Dashboard</title>
+    <title>Volunteer Dashboard</title>
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet" />
     <style>
         @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
@@ -3289,12 +3289,15 @@
     font-size: 16px;
   }
   
-  .hero-section {
-    background-image: linear-gradient(360deg, #222, #2220), url("./images/guardian-dashboard-bg.jpeg");
+ .hero-section {
+    background-image: linear-gradient(360deg, #222, #2220), url("./images/vol-dash-bg.jpg");
     background-position: 0 0, 50%;
     background-size: auto, cover;
-    min-height: 550px;
-  }
+    height: 100vh; /* Full viewport height */
+    width: 100vw; /* Full viewport width */
+    overflow: hidden; /* Prevents scrolling within the section */
+}
+
   
   .hero-section.about-hero {
     background-image: linear-gradient(360deg, #222, #2220), url("https://cdn.prod.website-files.com/66d87265f869f99a5b9f6b91/66d87265f869f99a5b9f6c2d_felix-rostig-UmV2wr-Vbq8-unsplash.jpg");
@@ -4550,7 +4553,14 @@
     }
   
     .footer-logo-column {
-      margin-bottom: 30px;
+      
+    }
+    #logo{
+       background-color: #f8f8f8; /* Background color */
+    border: 1px solid #ddd; /* Border around the logo */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px;
+
     }
   
     .social-footer-link {
@@ -4690,6 +4700,12 @@
 
 
  }
+   #logo {
+    width: 80px !important;       /* Set width and force it with !important */
+    height: auto !important;      /* Maintain aspect ratio */
+    margin-left: auto;            /* Shift to the right */
+    max-width: 90px;              /* Ensure it doesn’t expand beyond this size */
+}
     </style>
 </head>
 <body>
@@ -4713,7 +4729,7 @@
                     <a href="/" aria-current="page" class="brand w-nav-brand w--current"><img id="logo" src="images/navkshitijLogo.png" alt="Navkshitij Logo" /></a>
                     <nav role="navigation" class="nav-menu w-nav-menu">
                         <a href="/" aria-current="page" class="nav-link w-nav-link w--current">Profile</a>
-                        <a href="/my-activities" class="nav-link w-nav-link">My</a>
+                        <a href="/my-activities" class="nav-link w-nav-link">My Activities</a>
                         <a href="/login" class="nav-link w-nav-link">Log Out</a>
                     </nav>
                 </div>

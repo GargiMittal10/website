@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(
+                rgba(159, 155, 155, 0.8),  /* Top layer gradient color */
+                rgba(179, 175, 175, 0.6)   /* Bottom layer gradient color */
+            ), 
+            url('/images/background-image.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            color: #004d80;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .detail-section, .uploaded-files {
+            margin-bottom: 30px;
+            padding: 10px 20px;
+        }
+        .detail-section h3, .uploaded-files h3 {
+            font-size: 18px;
+            color: #555;
+            border-bottom: 2px solid #f4f4f4;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .detail-section p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #555;
+        }
+        .detail-section p strong {
+            color: #004d80;
+        }
+        
+        /* Flexbox styling for uploaded files */
+        .uploaded-files {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .uploaded-files img {
+            max-width: 180px;
+            border-radius: 5px;
+            border: 2px solid #eee;
+            padding: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .uploaded-files img:hover {
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #004d80;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background-color: #003366;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Application Details</h1>
+        <div class="detail-section">
+            <h3>Personal Information</h3>
+            <p><strong>Name:</strong> {{userDetails.name}}</p>
+            <p><strong>Email:</strong> {{userDetails.email}}</p>
+            <p><strong>Gender:</strong> {{userDetails.gender}}</p>
+            <p><strong>Date of Birth:</strong> {{userDetails.dob}}</p>
+            <p><strong>Age:</strong> {{userDetails.age}}</p>
+            <p><strong>Marital Status:</strong> {{userDetails.marital_status}}</p>
+            <p><strong>Occupation:</strong> {{userDetails.occupation}}</p>
+            <p><strong>Designation:</strong> {{userDetails.designation}}</p>
+            <p><strong>Address:</strong> {{userDetails.address}}</p>
+        </div>
+        <div class="detail-section">
+            <h3>Additional Information</h3>
+            <p><strong>Passport No.:</strong> {{userDetails.passport}}</p>
+            <p><strong>Date of Arrival:</strong> {{userDetails.arrival}}</p>
+            <p><strong>Contact (Residence):</strong> {{userDetails.contact_residence}}</p>
+            <p><strong>Contact (Office):</strong> {{userDetails.contact_office}}</p>
+            <p><strong>Mobile:</strong> {{userDetails.mobile}}</p>
+            <p><strong>Educational Qualification:</strong> {{userDetails.education}}</p>
+            <p><strong>Mother Tongue:</strong> {{userDetails.mother_tongue}}</p>
+            <p><strong>Hobbies:</strong> {{userDetails.hobbies}}</p>
+            <p><strong>Experience in Social Work:</strong> {{userDetails.experience}}</p>
+            <p><strong>Area of Interest:</strong> {{userDetails.interest}}</p>
+            <p><strong>Referral Source:</strong> {{userDetails.know_navkshitij}}</p>
+            <p><strong>Motivation:</strong> {{userDetails.motivation}}</p>
+            <p><strong>Preferred Time:</strong> {{userDetails.duration}}</p>
+            <p><strong>Date and Place:</strong> {{userDetails.date_place}}</p>
+        </div>
+        <div class="uploaded-files">
+            <h3>Uploaded Documents</h3>
+            {{#if userDetails.photo}}
+                <div>
+                    <p><strong>Photo:</strong></p>
+                    <img src="/uploads/{{userDetails.photo}}" alt="User Photo" onclick="openModal(this.src)">
+                </div>
+            {{/if}}
+            {{#if userDetails.aadhar}}
+                <div>
+                    <p><strong>Aadhar Card:</strong></p>
+                    <img src="/uploads/{{userDetails.aadhar}}" alt="Aadhar Card" onclick="openModal(this.src)">
+                </div>
+            {{/if}}
+            {{#if userDetails.signature}}
+                <div>
+                    <p><strong>Signature:</strong></p>
+                    <img src="/uploads/{{userDetails.signature}}" alt="Signature" onclick="openModal(this.src)">
+                </div>
+            {{/if}}
+        </div>
+
+        <a href="/admin/applications" class="back-button">Back</a>
+    </div>
+
+    <!-- Modal for full-screen view -->
+    <div class="modal" id="imageModal">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Full Screen Document">
+        </div>
+    </div>
+
+    <!-- JavaScript for Modal Functionality -->
+    <script>
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
