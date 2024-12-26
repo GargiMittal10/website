@@ -1,30 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interactive Calendar</title>
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.min.css"
-    />
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.orange-coral.min.css"
-    />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-        rel="stylesheet"
-    />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.min.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/evo-calendar@1.1.2/evo-calendar/css/evo-calendar.orange-coral.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
     <style>
         body {
             font-family: "Roboto", sans-serif;
-            background-image: linear-gradient(
-                rgba(255, 255, 255, 0.365),
-                rgba(255, 255, 255, 0.281),
-                rgba(255, 255, 255, 0.128)
-            ),
-            url("/images/background-image.jpeg");
+            background-image: linear-gradient(rgba(255, 255, 255, 0.365),
+                    rgba(255, 255, 255, 0.281),
+                    rgba(255, 255, 255, 0.128)),
+                url("/images/background-image.jpeg");
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -32,6 +24,7 @@
             flex-direction: column;
             align-items: center;
         }
+
         .hero {
             width: 90%;
             max-width: 1200px;
@@ -42,11 +35,13 @@
             overflow: hidden;
             padding: 20px;
         }
+
         #calendar {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
+
 <body>
     <div class="hero">
         <div id="calendar"></div>
@@ -87,4 +82,5 @@
         }
     </script>
 </body>
+
 </html>

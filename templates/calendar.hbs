@@ -166,7 +166,13 @@
             eventDisplayDefault: false,
             eventListNoEventsText: 'No events to display'
         });
-
+    $('#calendar').evoCalendar('addCalendarEvent', {
+            id: "test_event",
+            name: "Test Event",
+            date: "2024-11-15",
+            type: "event",
+            description: "This is a test event."
+        });
         // Fetch and display existing events
         await loadEvents();
 
@@ -177,16 +183,19 @@
     });
 
     // Function to load events from the database
-    // Function to load events from the database
-async function loadEvents() {
+   async function loadEvents() {
     try {
-        const response = await fetch('/calendar/events'); // Change the endpoint to match your API
+        const response = await fetch('/calendar/events');
         if (response.ok) {
             const events = await response.json();
             events.forEach(event => {
-                event.id = event._id; // Set the id property expected by evoCalendar
-                $('#calendar').evoCalendar('addCalendarEvent', event);
-                displayEvent(event); // Display event below the form
+                if (event.id) {
+                    event.id = event.id.toString(); // Convert to string if needed
+                    $('#calendar').evoCalendar('addCalendarEvent', event);
+                    displayEvent(event);
+                } else {
+                    console.warn('Event has no ID:', event); // Log the issue for debugging
+                }
             });
         } else {
             console.error('Failed to load events:', response.status);
@@ -198,38 +207,40 @@ async function loadEvents() {
 
     // Function to add a new event to the calendar and database
     async function addEvent() {
-        const name = document.getElementById('eventName').value;
-        const date = document.getElementById('eventDate').value;
-        const type = document.getElementById('eventType').value;
-        const description = document.getElementById('eventDescription').value;
+    const name = document.getElementById('eventName').value;
+    const date = document.getElementById('eventDate').value;
+    const type = document.getElementById('eventType').value;
+    const description = document.getElementById('eventDescription').value;
 
-        if (!name || !date) {
-            alert('Please fill in at least the event name and date.');
-            return;
-        }
+    if (!name || !date) {
+        alert('Please fill in at least the event name and date.');
+        return;
+    }
 
-        const newEvent = {
+    const newEvent = {
+        name: name,
+        date: date,
+        type: type,
+        description: description
+    };
+
+    try {
+        // Send a POST request to save the event to the server
+        const response = await fetch('/calendar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newEvent)
+        });
+
+        if (response.ok) {
+            const eventData = await response.json();
+            console.log('Event Data from Server:', eventData); // Log the response to check if `id` exists
             
-            name: name,
-            date: date,
-            type: type,
-            description: description
-        };
-
-        try {
-            // Send a POST request to save the event to the server
-            const response = await fetch('/calendar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newEvent)
-            });
-
-            if (response.ok) {
-                const eventData = await response.json();
-                // Add the event to the calendar
-                newEvent.id = eventData.id; // Get the event ID from the response
+            // Ensure eventData has a valid id
+            if (eventData.id) {
+                newEvent.id = eventData.id;  // Get the event ID from the response
                 $('#calendar').evoCalendar('addCalendarEvent', newEvent);
                 displayEvent(newEvent); // Display the event below the form
 
@@ -241,41 +252,45 @@ async function loadEvents() {
 
                 alert('Event added successfully!');
             } else {
-                alert('Error adding event. Please try again.');
+                console.error('Error: Event response does not contain a valid ID');
+                alert('Failed to add event. No valid ID received.');
             }
-        } catch (error) {
-            console.error('Error:', error);
+        } else {
             alert('Error adding event. Please try again.');
         }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding event. Please try again.');
     }
+}
+
 
     function displayEvent(event) {
     const eventList = document.getElementById('eventList');
     const eventItem = document.createElement('div');
     eventItem.className = 'event-item';
-    eventItem.setAttribute('data-id', event._id || event.id); // Handle both cases
+    eventItem.setAttribute('data-id', event.id);  // Ensure that the event has a unique ID
     eventItem.innerHTML = `
         <strong>${event.name}</strong><br>
         Date: ${event.date}<br>
         Type: ${event.type}<br>
         Description: ${event.description || ''}
-        <button class="delete-btn" onclick="deleteEvent('${event._id || event.id}')">Delete</button>
+        <button class="delete-btn" onclick="deleteEvent('${event.id}')">Delete</button>
     `;
     eventList.appendChild(eventItem);
-}   
-    
+}
+
     // Function to delete an event by its ID
 async function deleteEvent(eventId) {
-    console.log('Deleting event with ID:', eventId);
+    console.log("Deleting event with ID:", eventId);  // Log the eventId
+    if (!eventId) {
+        console.error("Event ID is undefined. Cannot proceed with deletion.");
+        return;
+    }
     try {
-        const response = await fetch(`/calendar/${eventId}`, {
-            method: 'DELETE'
-        });
+        const response = await fetch(`/calendar/${eventId}`, { method: 'DELETE' });
 
         if (response.ok) {
-            // Remove the event from the calendar
-            $('#calendar').evoCalendar('removeCalendarEvent', eventId);
-            // Remove the event from the event list using data-id
             document.querySelectorAll('.event-item').forEach(item => {
                 if (item.getAttribute('data-id') === eventId) {
                     item.remove();
@@ -283,6 +298,8 @@ async function deleteEvent(eventId) {
             });
             alert('Event deleted successfully!');
         } else {
+            const errorData = await response.json();
+            console.error('Error deleting event:', errorData.message);
             alert('Error deleting event. Please try again.');
         }
     } catch (error) {
@@ -292,7 +309,5 @@ async function deleteEvent(eventId) {
 }
 
 </script>
-
-
 </body>
 </html>

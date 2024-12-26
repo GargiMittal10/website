@@ -1,58 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>View Notices</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #ef5835;
-        padding: 20px;
-      }
-      h1 {
-        text-align: center;
-        color: white;
-        font-size: 1.5em;
-      }
-      .notice-container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        max-height: 400px;
-        overflow-y: scroll;
-      }
-      .notice {
-        border-bottom: 1px solid #ddd;
-        padding: 10px 0;
-      }
-      .notice h2 {
-        font-size: 1em;
-        color: #333;
-        margin: 0;
-      }
-      .notice-date {
-        color: #888;
-        font-size: 0.8em;
-        margin-top: 5px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Notices</h1>
 
-    <div class="notice-container">
-      <% if (notices.length === 0) { %>
-      <p>No notices available.</p>
-      <% } else { %> <% notices.forEach(function(notice) { %>
-      <div class="notice">
-        <h2><%= notice.notice %></h2>
-        <p class="notice-date"><%= new Date(notice.date).toDateString() %></p>
-      </div>
-      <% }); %> <% } %>
+<head>
+  <meta charset="UTF-8" />
+  <title>View Notices</title>
+  <link href="/style2.css" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .hero-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 50vh;
+      background-image: linear-gradient(360deg, rgba(34, 34, 34, 0.7), rgba(34, 34, 34, 0.7)),
+        url("images/notice2.jpg");
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .notices-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .notices-section h2 {
+      margin-bottom: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .search-container input[type="date"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+
+    .search-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #fe7b53;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .search-container button:hover {
+      background-color: #d04829;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #fe7b53;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    .back-button:hover {
+      background-color: #d04829;
+    }
+
+    .notices-table {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .notices-table th,
+    .notices-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .notices-table th {
+      background-color: #ff7f5c;
+      color: #ffffff;
+    }
+
+    .notices-table tr:hover {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hero-section">
+    <div class="container">
+      <h1 style="color:white;">Notices</h1>
     </div>
-  </body>
+  </div>
+
+  <div class="notices-section">
+    <h2>All Notices</h2>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="date" id="searchDate" />
+      <button onclick="filterNotices()">Search</button>
+    </div>
+
+    <!-- Back Button -->
+    <a href="/parents" class="back-button">Back to Parent Dashboard</a>
+
+    <table class="notices-table">
+      <thead>
+        <tr>
+          <th>Notice</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="noticesBody">
+        <!-- Dynamic Content Will Be Added Here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadNotices(date = null) {
+    try {
+        let url = '/api/notices';
+        if (date) {
+            url += `?date=${date}`; // Corrected syntax
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const notices = await response.json();
+        const noticesBody = document.getElementById('noticesBody');
+        noticesBody.innerHTML = ''; // Clear existing rows
+
+        notices.forEach(notice => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${notice.notice}</td>
+                <td>${new Date(notice.date).toLocaleDateString()}</td>
+            `;
+            noticesBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching notices:', error);
+    }
+}
+
+
+    // Filter notices by selected date
+    function filterNotices() {
+      const searchDate = document.getElementById('searchDate').value;
+      if (searchDate) {
+        loadNotices(searchDate); // Load notices for the selected date
+      } else {
+        loadNotices(); // Load all notices if no date selected
+      }
+    }
+
+    // Load all notices on page load
+    window.onload = loadNotices;
+  </script>
+</body>
+
 </html>

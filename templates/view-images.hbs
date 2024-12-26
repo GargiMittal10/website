@@ -1,59 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>View Images</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        padding: 20px;
-      }
-      .image-container {
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        max-height: 600px; /* Limit height */
-        overflow-y: scroll; /* Add scroll bar */
-      }
-      .image {
-        margin-bottom: 20px;
-      }
-      .image img {
-        max-width: 100%; /* Responsive image */
-        border-radius: 8px;
-      }
-      .description {
-        font-size: 0.9em; /* Adjust font size for description */
-        color: #555;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Uploaded Images</h1>
-    <div class="image-container">
-      {{!-- <% images.forEach(function(image) { %>
-      <div class="image">
-        <img
-          src="/uploads/<%= image.filename %>"
-          alt="<%= image.description %>"
-        />
 
-        <p class="description"><%= image.description %></p>
-      </div>
-      <% }); %> --}}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View Images</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image:
+        linear-gradient(to bottom, #fb47009f, rgba(225, 59, 22, 0.747)),
+        url("/images/smilingbg.jpg");
+      background-size: cover;
+      background-position: center;
+      padding: 20px;
+      color: #333;
+    }
 
-      <% images.forEach(image => { %>
-        <div class="image">
-            <img src="/uploads/<%= image.filename %>" alt="<%= image.description %>" />
-            <p class="description"><%= image.description %></p>
-        </div>
-    <% }) %>
+    .image-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-height: 600px;
+      overflow-y: scroll;
+    }
 
-    </div>
-  </body>
+    .image {
+      margin-bottom: 20px;
+    }
+
+    .image img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .description {
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+
+    .filter-form {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .back-button {
+      display: block;
+      width: 150px;
+      margin: 0 auto 20px;
+      padding: 10px;
+      background-color: #fe7b53;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #d04829;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Go Back Button -->
+  <a href="/parents" class="back-button">Go Back</a>
+
+  <h1>Uploaded Images</h1>
+  <div class="filter-form">
+    <form action="/view-images" method="GET">
+      <label for="date">Select Date:</label>
+      <input type="date" id="date" name="date" />
+      <button type="submit">Filter</button>
+    </form>
+  </div>
+  <div class="image-container">
+    {{#each images}}
+<div class="image">
+  <img src="{{this.filename}}" alt="{{this.description}}" />
+  <p class="description">{{this.description}}</p>
+</div>
+{{/each}}
+
+  </div>
+</body>
+
 </html>

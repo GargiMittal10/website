@@ -1,10 +1,8 @@
 require('dotenv').config();
 const express = require("express");
 const path = require("path");
-const hbs = require("hbs");
-hbs.registerHelper("eq", function (a, b) {
-    return a === b;
-});
+const exphbs = require('express-handlebars');
+
 const multer = require("multer");
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -12,13 +10,15 @@ const { User, Activity, Notice, Image, Calendar, Application, Parent, Staff, App
 const mongoose = require('mongoose'); 
 const { sendApplicationEmail, sendCredentialEmail, generateUniqueCode } = require('./utils/email');
 const crypto = require('crypto');
+const cors = require('cors');
+const moment = require('moment');
 const app = express();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-hbs.registerHelper('json', function(context) {
-    return JSON.stringify(context);
-});
+// hbs.registerHelper('json', function(context) {
+//     return JSON.stringify(context);
+// });
 
 app.use(session({
     secret: 'your_secret_key',
@@ -29,13 +29,28 @@ app.use(session({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.engine('hbs', exphbs.engine({
+    extname: 'hbs',
+    defaultLayout: false,
+    helpers: {
+        formatDate: (date) => moment(date).format('DD-MM-YYYY'),
+        eq: (a, b) => a === b,  // Register eq helper here
+        json: (context) => JSON.stringify(context)  // Register json helper here
+    },
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true
+    }
+}));
+
+
 
 // Set up template engine and static files
 app.set('view engine', 'hbs');
 app.set("views", path.join(__dirname, '../templates'));
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
+app.use(cors());
 
 const fs = require('fs');
 const uploadDir = path.join(__dirname, '../uploads');
@@ -53,6 +68,14 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/'); // Ensure this directory exists
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + path.extname(file.originalname)); // Create a unique filename
+//     }
+// });
 
 const upload = multer({ storage: storage });
 
@@ -461,6 +484,7 @@ app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, r
     }
 });
 
+//garret
 app.delete('/activity/:id', isAuthenticated, async (req, res) => {
     try {
         const activityId = req.params.id;
@@ -483,67 +507,195 @@ app.delete('/activity/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-app.get("/logout", (req, res) => {
-    req.session.destroy();
-    res.redirect("/login");
+app.get('/activities', async (req, res) => {
+    try {
+        const activities = await Activity.find().lean(); // Use .lean() for easy access in Handlebars
+        res.render('activities', { activities });
+    } catch (err) {
+        console.error("Error retrieving activities:", err);
+        res.status(500).send("Error retrieving activities");
+    }
+});
+app.get("/activities", (req, res) => {
+    res.render('activities');
+});
+app.get('/activities', async (req, res) => {
+    try {
+        const { date } = req.query; // Get the date from query parameters
+
+        // Check if a date is provided and filter the activities
+        let activities;
+        if (date) {
+            const startOfDay = new Date(date);
+            const endOfDay = new Date(startOfDay);
+            endOfDay.setDate(endOfDay.getDate() + 1); // Include all activities on the given date
+
+            activities = await Activity.find({
+                date: {
+                    $gte: startOfDay,
+                    $lt: endOfDay
+                }
+            });
+        } else {
+            activities = await Activity.find(); // No date filter, fetch all activities
+        }
+
+        res.render('activities', { activities });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error retrieving activities");
+    }
+});
+app.get('/activities', async (req, res) => {
+    try {
+        const activities = await Activity.find(); // Fetch all activities from the database
+        res.render('activities', { activities }); // Render the Handlebars template with activities
+    } catch (error) {
+        console.error('Error fetching activities:', error);
+        res.status(500).send('Server Error');
+    }
+});
+
+app.post('/add-image', upload.array('images', 10), async (req, res) => {
+    try {
+        // Check if files were uploaded
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).send('No files were uploaded.');
+        }
+
+        // Save each file's details to the database
+        const imagePromises = req.files.map(file => {
+            const newImage = new Image({
+                filename: `/uploads/${file.filename}`, // Make sure the path is correct for rendering
+                description: req.body.description // or use an array of descriptions if needed
+            });
+            return newImage.save();
+        });
+
+        // Wait for all images to be saved
+        const savedImages = await Promise.all(imagePromises);
+
+        res.redirect('/add-image');
+    } catch (err) {
+        console.error('Error uploading images:', err);
+        res.status(500).send('Error saving images: ' + err.message);
+    }
+});
+
+app.get('/api/images', async (req, res) => {
+    try {
+      const images = await Image.find(); // Fetching images from the database
+      res.json(images);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  app.delete('/delete-image/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedImage = await Image.findByIdAndDelete(id);
+        
+        if (!deletedImage) {
+            return res.status(404).json({ message: 'Image not found' });
+        }
+
+        res.status(200).json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting image', error });
+    }
+});
+app.get('/add-image', (req, res) => {
+    res.render('add-image');
 });
 
 app.get("/add-notice", (req, res) => {
     res.render('add-notice');
 });
-app.get("/view-calendar", isAuthenticated, (req, res) => {
-    res.render("view-calendar"); // Ensure you have a view-calendar.hbs template
-});
-  
-  // Handle image upload (POST request)
-  app.post('/add-image', upload.single('image'), async (req, res) => {
-    try {
-        const { description } = req.body;
-        const newImage = new Image({
-            filename: req.file.filename,
-            description: description
-        });
-        await newImage.save();
-        res.redirect('/add-image');  // Save the image to the database
-        // Redirect to a success page or back to upload page
-        // Change '/success' to your desired path
-    } catch (err) {
-        console.error('Error uploading image:', err);
-        res.status(500).send('Error saving image');
-    }
-});
 
 app.post('/add-notice', async (req, res) => {
     try {
+        console.log('Notice request received:', req.body.notice); // Debug log
         const newNotice = new Notice({
-            notice: req.body.notice
+            notice: req.body.notice,
+            date: new Date() // Default date
         });
-  
         await newNotice.save();
-        res.redirect('/add-notice');
+        console.log('Notice saved:', newNotice); // Confirm save
+        res.status(200).json({ message: 'Notice added successfully' });
     } catch (err) {
         console.error('Error saving notice:', err);
-        res.status(500).send('Error saving notice');
+        res.status(500).json({ message: 'Error saving notice' });
     }
 });
 
-app.get('/add-image', (req, res) => {
-    res.render('add-image');
-});
 
-app.post('/add-image', upload.single('image'), async (req, res) => {
+app.get('/api/notices', async (req, res) => {
     try {
-        const newImage = new Image({
-            filename: req.file.filename,
-            description: req.body.description
-        });
-  
-        await newImage.save();
-        res.status(201).json(newImage);
-    } catch (err) {
-        console.error('Error uploading image:', err);
-        res.status(500).send('Error saving image');
+      const notices = await Notice.find();
+      res.status(200).json(notices);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
     }
+});
+
+  
+  // Route to delete a notice by ID
+  app.delete('/api/notices/:id', async (req, res) => {
+    try {
+      const result = await Notice.findByIdAndDelete(req.params.id);
+      if (!result) {
+        return res.status(404).json({ message: 'Notice not found' });
+      }
+      res.status(200).json({ message: 'Notice deleted successfully' });
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/view-calendar", isAuthenticated, (req, res) => {
+    res.render("view-calendar"); // Ensure you have a view-calendar.hbs template
+});
+
+app.get('/view-images', async (req, res) => {
+    try {
+        const { date } = req.query;
+        let images;
+
+        if (date) {
+            const startOfDay = new Date(date);
+            const endOfDay = new Date(startOfDay);
+            endOfDay.setDate(endOfDay.getDate() + 1);
+
+            images = await Image.find({
+                uploadedAt: { $gte: startOfDay, $lt: endOfDay }
+            });
+        } else {
+            images = await Image.find(); // Fetch all images if no date filter is applied
+        }
+
+        res.render('view-images', { images });
+    } catch (error) {
+        console.error('Error fetching images:', error);
+        res.status(500).send('Error fetching images');
+    }
+});
+
+
+app.get('/view-notice', async (req, res) => {
+    try {
+        const notices = await Notice.find({}); // Fetch notices from the database
+        console.log('Fetched Notices:', notices); // Log the fetched data for debugging
+        res.render('view-notice', { notices }); // Render the view-notice page with notices data
+    } catch (err) {
+        console.error('Error fetching notices:', err);
+        res.status(500).send('Error fetching notices'); // Handle errors if any
+    }
+});
+//garret end
+
+app.get("/logout", (req, res) => {
+    req.session.destroy();
+    res.redirect("/login");
 });
 
 app.get("/calendar", isAuthenticated, (req, res) => {
@@ -554,47 +706,85 @@ app.use(express.json()); // To parse JSON bodies
 
 // Get all events
 app.get('/calendar/events', async (req, res) => {
-  try {
-    const events = await Calendar.find();
-    res.json(events);
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    res.status(500).json({ message: 'Failed to fetch events.' });
-  }
+    try {
+        const events = await Calendar.find();
+
+        // Format each event's id and date for the calendar
+        const formattedEvents = events.map(event => {
+            if (!event._id) {
+                console.error('Event missing _id:', event);
+                return null;  // Skip or handle invalid event
+            }
+            return {
+                id: event._id.toString(),
+                name: event.name,
+                date: moment(event.date).format('YYYY-MM-DD'),
+                type: event.type,
+                description: event.description
+            };
+        }).filter(event => event !== null);  // Filter out any invalid events        
+        console.log("Formatted Events:", formattedEvents); // Log to verify structure
+        res.json(formattedEvents); // Send events to the client
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ message: 'Failed to fetch events.' });
+    }
 });
 
 // Add a new event
+// Add a new event
 app.post('/calendar', async (req, res) => {
-  const { name, date, type, description } = req.body;
-
-  if (!name || !date || !type) {
-    return res.status(400).json({ message: 'Name, date, and type are required fields.' });
-  }
-
-  try {
-    const newEvent = new Calendar({ name, date, type, description });
-    const savedEvent = await newEvent.save();
-    res.json(savedEvent);
-  } catch (error) {
-    console.error('Error adding event:', error);
-    res.status(500).json({ message: 'Failed to add event.' });
-  }
-});
+    const { name, date, type, description } = req.body;
+  
+    if (!name || !date || !type) {
+      return res.status(400).json({ message: 'Name, date, and type are required fields.' });
+    }
+  
+    try {
+      const newEvent = new Calendar({
+          name, date, type, description
+      });
+  
+      const savedEvent = await newEvent.save();
+  
+      // Log the saved event to ensure id is present
+      console.log('Saved Event:', savedEvent);
+  
+      res.json({
+        id: savedEvent._id.toString(),  // Ensure the ID is included in the response
+        name: savedEvent.name,
+        date: savedEvent.date,
+        type: savedEvent.type,
+        description: savedEvent.description
+      });
+    } catch (error) {
+      console.error('Error adding event:', error);
+      res.status(500).json({ message: 'Failed to add event.' });
+    }
+  });
+  
 
 // Delete an event by ID
 app.delete('/calendar/:id', async (req, res) => {
+    const eventId = req.params.id;
+
+    console.log("Event ID received in delete request:", eventId);  // Log received event ID
+
+    if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
+        return res.status(400).json({ message: "Invalid event ID format." });
+    }
+
     try {
-        const eventId = req.params.id;
         const deletedEvent = await Calendar.findByIdAndDelete(eventId);
-        
         if (deletedEvent) {
-            res.status(200).send({ message: 'Event deleted successfully' });
+            res.status(200).json({ message: "Event deleted successfully." });
         } else {
-            res.status(404).send({ message: 'Event not found' });
+            console.error("Event not found with ID:", eventId);
+            res.status(404).json({ message: "Event not found." });
         }
     } catch (error) {
-        console.error('Error deleting event:', error);
-        res.status(500).send({ message: 'Error deleting event' });
+        console.error("Error deleting event:", error);
+        res.status(500).json({ message: "Error deleting event" });
     }
 });
 
@@ -608,32 +798,6 @@ app.get('/get-images', async (req, res) => {
     }
 });
 
-  app.get('/view-image', (req, res) => {
-    res.render('view-image');
-  });
-
-  app.get('/view-notice', async (req, res) => {
-    try {
-        const notices = await Notice.find({});
-        console.log('Fetched Notices:', notices); // Check if notices are being fetched
-
-        // Render the view-notice.hbs page without using a layout
-        res.render('view-notice', { notices, layout: false });
-    } catch (err) {
-        console.error('Error fetching notices:', err);
-        res.status(500).send('Error fetching notices');
-    }
-});
-
-app.get('/view-images', (req, res) => {
-    Image.find({}, (err, images) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error retrieving images");
-        }
-        res.render('view-images', { images });
-    });
-});
 
 app.get("/form1", (req, res) => {
     res.render("form1");
