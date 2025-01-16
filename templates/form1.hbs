@@ -435,6 +435,12 @@
             const ageInput = parseInt(document.getElementById("age").value);
             const today = new Date();
             const ageCalculated = today.getFullYear() - dob.getFullYear();
+            const monthDifference = today.getMonth() - dob.getMonth();
+            const dayDifference = today.getDate() - dob.getDate();
+
+            if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
+            ageCalculated--;
+        }
 
             if (isNaN(ageInput) || ageInput !== ageCalculated) {
                 alert("The age does not match the Date of Birth. Please check.");

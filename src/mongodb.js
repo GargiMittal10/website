@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/LoginTut", { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("MongoDB connected"))
-    .catch((error) => console.error("Failed to connect to MongoDB:", error));
-
+mongoose.connect(
+  process.env.MONGODB_URI,
+  { useNewUrlParser: true, useUnifiedTopology: true }
+)
+  .then(() => console.log("MongoDB connected to Atlas"))
+  .catch((error) => console.error("Failed to connect to MongoDB Atlas:", error));
 
 // Schema for User Data (volunteer/intern)
 const FormSchema = new mongoose.Schema({

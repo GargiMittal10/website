@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <script src="https://kit.fontawesome.com/13f28dfabd.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <style>
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
@@ -180,6 +181,14 @@ form p a{
   font-size: 12px;
   margin-top: -10px;
 }
+
+.fa-eye-slash {
+  color: #fd6948;
+}
+.fa-eye {
+  color: #fd6948;
+}
+
   </style>
 </head>
 <body>
@@ -197,14 +206,11 @@ form p a{
 
     <div class="input-field">
       <i class="fa-solid fa-lock"></i>
-      <input type="password" name="password" placeholder="Password" id="password" required> <!-- Add name="password" -->
-      <i class="fa fa-eye show-password" id="togglePassword"></i>
+      <input type="password" name="password" placeholder="Password" id="password" required>
+      <i class="fa fa-eye show-password" id="togglePassword"></i> <!-- Eye icon to toggle visibility -->
       <div id="passwordError" class="error-message"></div>
     </div>
 
-    
-
-    
     <p>Internship/Volunteering Form<a href="/form1">Click Here</a></p>
     <p>Don't have an account? <a href="/signup">Sign Up</a></p> 
   </div>
@@ -219,57 +225,27 @@ form p a{
     document.addEventListener('DOMContentLoaded', function() {
       const emailField = document.getElementById('email');
       const passwordField = document.getElementById('password');
-      const dropdownButton = document.querySelector('.drop-down button');
-      const dropdownContent = document.querySelector('.drop-down .content');
-      const dropdownLinks = dropdownContent.querySelectorAll('a');
-      const emailError = document.getElementById('emailError');
-      const passwordError = document.getElementById('passwordError');
-      const roleError = document.getElementById('roleError');
       const togglePassword = document.getElementById('togglePassword');
       const signinBtn = document.getElementById('signinBtn');
       let selectedRole = '';
 
-      // Reset dropdown content
-      function resetDropdown() {
-        dropdownButton.textContent = "Choose a Role";
-        selectedRole = '';
-        dropdownContent.style.display = 'none';
-      }
+      // Toggle password visibility
+      if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+          // Toggle password visibility
+          const type = passwordField.type === 'password' ? 'text' : 'password';
+          passwordField.setAttribute('type', type);
 
-      // Toggle dropdown display on button click
-      dropdownButton.addEventListener('click', function() {
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
-          dropdownContent.style.display = 'none';
-        }
-      });
-
-      // Set dropdown button text to selected role
-      dropdownLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-          event.preventDefault();
-          dropdownButton.textContent = this.textContent;
-          selectedRole = this.textContent;
-          dropdownContent.style.display = 'none';
+          // Toggle the icon (eye open/eye closed)
+          togglePassword.classList.toggle('fa-eye-slash'); // Switch to "eye-slash" when the password is visible
         });
-      });
+      }
 
       // Email validation
       function validateEmail(email) {
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return re.test(email);
       }
-
-      // Show or hide password
-      togglePassword.addEventListener('click', function() {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-      });
 
       // Form validation with alert
       document.getElementById('loginForm').addEventListener('submit', function(event) {
@@ -288,12 +264,6 @@ form p a{
           valid = false;
         }
 
-        // Role validation
-        if (selectedRole === '') {
-          alertMessage += 'Please choose a role.\n';
-          valid = false;
-        }
-
         if (!valid) {
           event.preventDefault(); // Prevent form submission if invalid
           alert(alertMessage); // Show alert message
@@ -301,5 +271,9 @@ form p a{
       });
     });
   </script>
+
+  <!-- FontAwesome for the eye icon -->
+  
 </body>
 </html>
+

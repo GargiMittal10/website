@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require("express");
 const path = require("path");
 const exphbs = require('express-handlebars');
-
 const multer = require("multer");
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -43,8 +42,6 @@ app.engine('hbs', exphbs.engine({
     }
 }));
 
-
-
 // Set up template engine and static files
 app.set('view engine', 'hbs');
 app.set("views", path.join(__dirname, '../templates'));
@@ -68,16 +65,8 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, 'uploads/'); // Ensure this directory exists
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + path.extname(file.originalname)); // Create a unique filename
-//     }
-// });
 
-const upload = multer({ storage: storage });
+const upload = require('multer')({ dest: 'uploads/' });
 
 // Authentication Middleware
 function isAuthenticated(req, res, next) {
