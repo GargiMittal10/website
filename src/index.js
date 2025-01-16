@@ -34,9 +34,10 @@ app.engine('hbs', exphbs.engine({
     defaultLayout: false,
     helpers: {
         formatDate: (date) => moment(date).format('DD-MM-YYYY'),
-        eq: (a, b) => a === b,  // Register eq helper here
-        json: (context) => JSON.stringify(context)  // Register json helper here
-    },
+        eq: (a, b) => a === b,  // Helper for equality check
+        json: (context) => JSON.stringify(context),  // Convert context to JSON string
+        isArray: (value) => Array.isArray(value)  // Add the isArray helper
+      },
     runtimeOptions: {
         allowProtoPropertiesByDefault: true,
         allowProtoMethodsByDefault: true
@@ -68,14 +69,6 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, 'uploads/'); // Ensure this directory exists
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + path.extname(file.originalname)); // Create a unique filename
-//     }
-// });
 
 const upload = multer({ storage: storage });
 
@@ -468,12 +461,15 @@ app.get("/my-activities", isAuthenticated, async (req, res) => {
     }
 });
 
-app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, res) => {
+app.post("/add-activity", isAuthenticated, upload.array('media'), async (req, res) => {
     try {
+        // Collect media file paths for multiple files
+        const mediaFiles = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+
         const newActivity = new Activity({
             user: req.session.user.email,
             description: req.body.description,
-            media: req.file ? req.file.path : null,
+            media: mediaFiles,  // Store all file paths in an array
             hours: req.body.hours
         });
 
@@ -483,6 +479,7 @@ app.post("/add-activity", isAuthenticated, upload.single('media'), async (req, r
         res.status(500).send("Error adding activity: " + err.message);
     }
 });
+
 
 //garret
 app.delete('/activity/:id', isAuthenticated, async (req, res) => {
@@ -563,24 +560,29 @@ app.post('/add-image', upload.array('images', 10), async (req, res) => {
             return res.status(400).send('No files were uploaded.');
         }
 
-        // Save each file's details to the database
+        // Save each file's details and binary data to the database
         const imagePromises = req.files.map(file => {
             const newImage = new Image({
-                filename: `/uploads/${file.filename}`, // Make sure the path is correct for rendering
-                description: req.body.description // or use an array of descriptions if needed
+                filename: file.originalname, // Store the original filename
+                contentType: file.mimetype,  // Store MIME type of the file
+                data: file.buffer,           // Store binary data
+                description: req.body.description || 'No description provided', // Optional description
             });
             return newImage.save();
         });
 
         // Wait for all images to be saved
-        const savedImages = await Promise.all(imagePromises);
+        await Promise.all(imagePromises);
 
+        console.log('Images saved successfully');
         res.redirect('/add-image');
     } catch (err) {
         console.error('Error uploading images:', err);
         res.status(500).send('Error saving images: ' + err.message);
     }
 });
+
+
 
 app.get('/api/images', async (req, res) => {
     try {

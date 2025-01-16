@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/LoginTut", { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("MongoDB connected"))
-    .catch((error) => console.error("Failed to connect to MongoDB:", error));
+mongoose.connect(
+  process.env.MONGODB_URI,
+  { useNewUrlParser: true, useUnifiedTopology: true }
+)
+  .then(() => console.log("MongoDB connected to Atlas"))
+  .catch((error) => console.error("Failed to connect to MongoDB Atlas:", error));
 
 
 // Schema for User Data (volunteer/intern)
@@ -50,7 +53,7 @@ const User = mongoose.model("User", FormSchema);
 const ActivitySchema = new mongoose.Schema({
   user: { type: String, required: true },
   description: { type: String, required: true },
-  media: { type: String },
+  media: { type: [String] }, 
   hours: { type: Number, required: true },
   date: { type: Date, default: Date.now }
 });
@@ -72,23 +75,36 @@ const NoticeSchema = new mongoose.Schema({
 const Notice = mongoose.model('Notice', NoticeSchema);
 
 //notice schema
+
 const ImageSchema = new mongoose.Schema({
   filename: {
     type: String,
-    required: true
+    required: true, // Store the original filename for reference
+  },
+  contentType: {
+    type: String, // Store the MIME type of the image (e.g., image/jpeg, image/png)
+    required: true,
+  },
+  data: {
+    type: Buffer, // Store the binary data of the image
+    required: true, // Make this field required for storing the image
   },
   description: {
     type: String,
-    required: true
+    required: true, // Description of the image
   },
   uploadedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now, // Store the time when the image is uploaded
+  },
 });
+
 
 // Create image model for the image database
 const Image = mongoose.model('Image', ImageSchema);
+
+module.exports = Image;
+
 
 const CalendarSchema = new mongoose.Schema({
   name: { type: String, required: true },

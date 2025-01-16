@@ -124,7 +124,8 @@
 
   <!-- Search by User -->
   <div class="search-container">
-    <input type="text" id="userSearch" placeholder="Search by User" onkeyup="filterActivities()">
+    <input type="text" id="userSearch" placeholder="Search by User">
+    <button class="button" onclick="filterActivities()">Search</button>
   </div>
 
   <!-- Total Hours Display -->
@@ -143,7 +144,19 @@
       <td>{{this.user}}</td> <!-- Display user's name -->
       <td>{{this.description}}</td>
       <td>{{this.hours}}</td>
-      <td>{{#if this.media}}<a href="/{{this.media}}" target="_blank">View Media</a>{{else}}N/A{{/if}}</td>
+      <td>
+        {{#if this.media}}
+        {{#if (isArray this.media)}} <!-- Check if media is an array -->
+        {{#each this.media}} <!-- Iterate over each media item -->
+        <img src="{{this}}" alt="Media" style="max-width: 300px; max-height: 300px; margin-right: 10px;">
+        {{/each}}
+        {{else}}
+        <img src="{{this.media}}" alt="Media" style="max-width: 300px; max-height: 300px;">
+        {{/if}}
+        {{else}}
+        N/A
+        {{/if}}
+      </td>
       <td>{{formatDate this.date}}</td>
     </tr>
     {{/each}}
@@ -160,27 +173,28 @@
 
       // Loop through all table rows, and hide those that don't match the search query
       for (let i = 1; i < tr.length; i++) {
-        const tdUser = tr[i].getElementsByTagName('td')[0];
-        if (tdUser) {
+        const tdUser = tr[i].getElementsByTagName('td')[0]; // First column (User)
+        const tdHours = tr[i].getElementsByTagName('td')[2]; // Third column (Hours)
+
+        if (tdUser && tdHours) {
           const userText = tdUser.textContent || tdUser.innerText;
-          if (userText.toLowerCase().indexOf(filter) > -1) {
-            tr[i].style.display = '';
-            totalHours += parseFloat(tr[i].getElementsByTagName('td')[2].textContent) || 0; // Add to total hours
+          const hoursText = tdHours.textContent || tdHours.innerText;
+
+          // Check if user text matches filter
+          if (userText.toLowerCase().includes(filter)) {
+            tr[i].style.display = ''; // Show row
+            totalHours += parseFloat(hoursText) || 0; // Add hours to total
           } else {
-            tr[i].style.display = 'none';
+            tr[i].style.display = 'none'; // Hide row
           }
         }
       }
 
       // Update total hours displayed
-      document.getElementById('totalHours').textContent = Total Hours: ${totalHours};
+      document.getElementById('totalHours').textContent = `Total Hours: ${totalHours}`;
     }
-
-    // Initial total hours calculation
-    window.onload = function () {
-      filterActivities(); // Calculate total hours on load
-    };
   </script>
 </body>
+
 
 </html>
