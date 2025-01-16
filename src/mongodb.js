@@ -9,7 +9,6 @@ mongoose.connect(
   .then(() => console.log("MongoDB connected to Atlas"))
   .catch((error) => console.error("Failed to connect to MongoDB Atlas:", error));
 
-
 // Schema for User Data (volunteer/intern)
 const FormSchema = new mongoose.Schema({
     photo: String,

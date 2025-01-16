@@ -1,262 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <script src="https://kit.fontawesome.com/13f28dfabd.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <style>
     @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
 
-.container{
-  width: 100%;
-  height: 100vh;
-  background-image: linear-gradient(
-            rgba(255, 255, 255, 0.365),  /* Light white */
-            rgba(255, 255, 255, 0.281),  /* Light white */
-            rgba(255, 255, 255, 0.128)
-            ), url('/images/background-image.jpeg');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-}
+    .container {
+      width: 100%;
+      height: 100vh;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.365),
+          /* Light white */
+          rgba(255, 255, 255, 0.281),
+          /* Light white */
+          rgba(255, 255, 255, 0.128)), url('/images/background-image.jpeg');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
 
-.form-box{
-  width: 90%;
-  max-width: 450px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  background: #fff;
-  padding: 40px 50px 60px;
-  text-align: center;
-}
+    .form-box {
+      width: 90%;
+      max-width: 450px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 40px 50px 60px;
+      text-align: center;
+    }
 
-.logo {
-  width: 200px;
-  margin-bottom: 0px;
-}
+    .logo {
+      width: 200px;
+      margin-bottom: 0px;
+    }
 
-.form-box h1{
-  font-size: 30px;
-  margin-bottom: 60px;
-  color: #fd6948;
-  position: relative;
-}
+    .form-box h1 {
+      font-size: 30px;
+      margin-bottom: 60px;
+      color: #fd6948;
+      position: relative;
+    }
 
-.form-box h1::after{
-  content: '';
-  width: 30px;
-  height: 4px;
-  border-radius: 3px;
-  background: #fd6948;
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-}
+    .form-box h1::after {
+      content: '';
+      width: 30px;
+      height: 4px;
+      border-radius: 3px;
+      background: #fd6948;
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
 
-.input-field{
-  background: #eaeaea;
-  margin: 15px 0;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  max-height: 65px;
-  transition: max-height 0.5s;
-  overflow: hidden;
-}
+    .input-field {
+      background: #eaeaea;
+      margin: 15px 0;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      max-height: 65px;
+      transition: max-height 0.5s;
+      overflow: hidden;
+    }
 
-input{
-  width: 100%;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  padding: 18px 15px;
-}
+    input {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      outline: 0;
+      padding: 18px 15px;
+    }
 
-.input-field i{
-  margin-left: 15px;
-  color: #999;
-}
+    .input-field i {
+      margin-left: 15px;
+      color: #999;
+    }
 
-/* CSS for the dropdown button and content */
-.drop-down {
-  display: inline-block;
-  position: relative;
-}
+    /* CSS for the dropdown button and content */
+    .drop-down {
+      display: inline-block;
+      position: relative;
+    }
 
-.drop-down button {
-  background-color: #fd6948; 
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 3px; 
-  cursor: pointer;
-  font-size: 16px;
-}
+    .drop-down button {
+      background-color: #fd6948;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-.drop-down .content {
-  display: none;
-  position: absolute;
-  background-color: #eaeaea;
-  min-width: 100%; 
-  box-shadow: 2px 2px 5px hsla(0, 0%, 0%, 0.8);
-  border-radius: 3px; 
-  z-index: 1; 
-}
+    .drop-down .content {
+      display: none;
+      position: absolute;
+      background-color: #eaeaea;
+      min-width: 100%;
+      box-shadow: 2px 2px 5px hsla(0, 0%, 0%, 0.8);
+      border-radius: 3px;
+      z-index: 1;
+    }
 
-.drop-down a {
-  display: block;
-  color: black;
-  text-decoration: none;
-  padding: 10px 15px;
-}
+    .drop-down a {
+      display: block;
+      color: black;
+      text-decoration: none;
+      padding: 10px 15px;
+    }
 
-.drop-down a:hover {
-  background-color: #d0d0d0;
-}
+    .drop-down a:hover {
+      background-color: #d0d0d0;
+    }
 
-.input-group {
-  margin-bottom: 30px; /* Adjust as needed for spacing */
-}
+    .input-group {
+      margin-bottom: 30px;
+      /* Adjust as needed for spacing */
+    }
 
-form p {
-  margin-top: 20px; /* Adjust as needed for spacing */
-}
+    form p {
+      margin-top: 20px;
+      /* Adjust as needed for spacing */
+    }
 
-form p{
-  text-align: center;
-  font-size: 13px;
-}
+    form p {
+      text-align: center;
+      font-size: 13px;
+    }
 
-form p a{
-  text-decoration: none;
-  color: #fd6948;
-}
+    form p a {
+      text-decoration: none;
+      color: #fd6948;
+    }
 
-.btn-field{
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
+    .btn-field {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
 
-.btn-field button{
-  flex-basis: 48%;
-  background: #fd6948;
-  color: #fff;
-  height: 40px;
-  border-radius: 20px;
-  border: 0;
-  outline: 0;
-  cursor: pointer;
-  transition: background 1s;
-}
+    .btn-field button {
+      flex-basis: 48%;
+      background: #fd6948;
+      color: #fff;
+      height: 40px;
+      border-radius: 20px;
+      border: 0;
+      outline: 0;
+      cursor: pointer;
+      transition: background 1s;
+    }
 
-.input-group{
-  height: 280px;
-}
+    .input-group {
+      height: 280px;
+    }
 
-.btn-field button.disable{
-  background: #eaeaea;
-  color: #555;
-}
+    .btn-field button.disable {
+      background: #eaeaea;
+      color: #555;
+    }
 
-.show-password {
-  cursor: pointer;
-  margin-right: 10px;
-}
+    .show-password {
+      cursor: pointer;
+      margin-right: 10px;
+    }
 
-.error-message {
-  color: red;
-  font-size: 12px;
-  margin-top: -10px;
-}
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: -10px;
+    }
+
+    .fa-eye-slash {
+      color: #fd6948;
+    }
+
+    .fa-eye {
+      color: #fd6948;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="form-box">
-        <img src="navkshitijLogo.png" alt="Logo" class="logo">
-        <h1 id="title">Sign In</h1>
-    <form action="/login" method="post" id="loginForm">
-  <div class="input-group">
-    <div class="input-field">
-      <i class="fa-solid fa-envelope"></i>
-      <input type="email" name="email" placeholder="Email" id="email" required> <!-- Add name="email" -->
-      <div id="emailError" class="error-message"></div>
-    </div>
+      <img src="navkshitijLogo.png" alt="Logo" class="logo">
+      <h1 id="title">Sign In</h1>
+      <form action="/login" method="post" id="loginForm">
+        <div class="input-group">
+          <div class="input-field">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" name="email" placeholder="Email" id="email" required> <!-- Add name="email" -->
+            <div id="emailError" class="error-message"></div>
+          </div>
 
-    <div class="input-field">
-      <i class="fa-solid fa-lock"></i>
-      <input type="password" name="password" placeholder="Password" id="password" required> <!-- Add name="password" -->
-      <i class="fa fa-eye show-password" id="togglePassword"></i>
-      <div id="passwordError" class="error-message"></div>
-    </div>
+          <div class="input-field">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" name="password" placeholder="Password" id="password" required>
+            <i class="fa fa-eye show-password" id="togglePassword"></i> <!-- Eye icon to toggle visibility -->
+            <div id="passwordError" class="error-message"></div>
+          </div>
 
-    
-
-    
-    <p>Internship/Volunteering Form<a href="/form1">Click Here</a></p>
-    <p>Don't have an account? <a href="/signup">Sign Up</a></p> 
-  </div>
-  <div class="btn-field">
-    <button type="submit" id="signinBtn">Sign In</button> <!-- Change to submit -->
-  </div>
-</form>
+          <p>Internship/Volunteering Form<a href="/form1">Click Here</a></p>
+          <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        </div>
+        <div class="btn-field">
+          <button type="submit" id="signinBtn">Sign In</button> <!-- Change to submit -->
+        </div>
+      </form>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const emailField = document.getElementById('email');
       const passwordField = document.getElementById('password');
-      const dropdownButton = document.querySelector('.drop-down button');
-      const dropdownContent = document.querySelector('.drop-down .content');
-      const dropdownLinks = dropdownContent.querySelectorAll('a');
-      const emailError = document.getElementById('emailError');
-      const passwordError = document.getElementById('passwordError');
-      const roleError = document.getElementById('roleError');
       const togglePassword = document.getElementById('togglePassword');
       const signinBtn = document.getElementById('signinBtn');
       let selectedRole = '';
 
-      // Reset dropdown content
-      function resetDropdown() {
-        dropdownButton.textContent = "Choose a Role";
-        selectedRole = '';
-        dropdownContent.style.display = 'none';
-      }
+      // Toggle password visibility
+      if (togglePassword) {
+        togglePassword.addEventListener('click', function () {
+          // Toggle password visibility
+          const type = passwordField.type === 'password' ? 'text' : 'password';
+          passwordField.setAttribute('type', type);
 
-      // Toggle dropdown display on button click
-      dropdownButton.addEventListener('click', function() {
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-      });
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        if (!dropdownButton.contains(event.target) && !dropdownContent.contains(event.target)) {
-          dropdownContent.style.display = 'none';
-        }
-      });
-
-      // Set dropdown button text to selected role
-      dropdownLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-          event.preventDefault();
-          dropdownButton.textContent = this.textContent;
-          selectedRole = this.textContent;
-          dropdownContent.style.display = 'none';
+          // Toggle the icon (eye open/eye closed)
+          togglePassword.classList.toggle('fa-eye-slash'); // Switch to "eye-slash" when the password is visible
         });
-      });
+      }
 
       // Email validation
       function validateEmail(email) {
@@ -264,15 +251,8 @@ form p a{
         return re.test(email);
       }
 
-      // Show or hide password
-      togglePassword.addEventListener('click', function() {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-      });
-
       // Form validation with alert
-      document.getElementById('loginForm').addEventListener('submit', function(event) {
+      document.getElementById('loginForm').addEventListener('submit', function (event) {
         let valid = true;
         let alertMessage = '';
 
@@ -288,12 +268,6 @@ form p a{
           valid = false;
         }
 
-        // Role validation
-        if (selectedRole === '') {
-          alertMessage += 'Please choose a role.\n';
-          valid = false;
-        }
-
         if (!valid) {
           event.preventDefault(); // Prevent form submission if invalid
           alert(alertMessage); // Show alert message
@@ -301,5 +275,9 @@ form p a{
       });
     });
   </script>
+
+  <!-- FontAwesome for the eye icon -->
+
 </body>
+
 </html>
